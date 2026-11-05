@@ -239,7 +239,7 @@
     const locale = lang === "pl" ? "pl-PL" : "en-GB";
     const fMonth = new Intl.DateTimeFormat(locale, { month: "short" });
     const fWeekday = new Intl.DateTimeFormat(locale, { weekday: "long" });
-    const fShort = new Intl.DateTimeFormat(locale, { weekday: "short", day: "numeric", month: "numeric" });
+    const fDay = new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long" });
 
     eventsNote.hidden = !eventsOffline;
     eventsNote.textContent = eventsOffline ? dyn("offline") : "";
@@ -253,7 +253,8 @@
 
     list.forEach((e) => {
       const { date, ymd: day, time } = parseStart(e.start);
-      const li = el("li", "event");
+      const li = el("li", day === today ? "event event--today" : "event");
+      if (day === today) li.append(el("span", "event-stamp", dyn("today")));
       const dateBox = el("div", "event-date");
       dateBox.append(
         el("span", "event-day", String(date.getDate())),
@@ -262,7 +263,6 @@
       );
       const body = el("div", "event-body");
       const meta = el("p", "event-meta");
-      if (day === today) meta.append(el("span", "today", dyn("today")));
       meta.append(el("span", null, time));
       const cost = formatCost(e.cost);
       if (cost) meta.append(el("span", null, cost));
@@ -280,12 +280,11 @@
     const first = list[0];
     const { date, ymd: firstDay, time } = parseStart(first.start);
     const isToday = firstDay === today;
-    const pill = $("#tonight");
-    $(".tonight-label", pill).textContent = isToday ? dyn("tonight") : dyn("next");
-    $(".tonight-name", pill).textContent = first.title;
-    $(".tonight-time", pill).textContent = isToday ? time : `${fShort.format(date)} · ${time}`;
-    $(".live-dot", pill).style.display = isToday ? "" : "none";
-    pill.hidden = false;
+    const bill = $("#tonight");
+    $(".tonight-label", bill).textContent = isToday ? dyn("tonight") : dyn("next");
+    $(".tonight-name", bill).textContent = first.title;
+    $(".tonight-time", bill).textContent = isToday ? `${fWeekday.format(date)} · ${time}` : `${fDay.format(date)} · ${time}`;
+    bill.hidden = false;
 
     if (animate) {
       gsap.from(eventsList.children, {

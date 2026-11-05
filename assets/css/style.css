@@ -276,22 +276,27 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .g-hh { font-weight: 900; letter-spacing: -.01em; }
 .g-dots { color: var(--smoke); }
 
+/* zapowiedź koncertu — jak afisz w klubie, bez „aplikacyjnych” pigułek */
 .tonight {
-  display: inline-flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: .3rem .7rem;
-  margin-top: 1.8rem; padding: .7rem 1.3rem;
-  border: 1px solid var(--line); border-radius: 999px;
-  background: rgba(7, 9, 14, .55);
-  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-  text-decoration: none; font-size: .95rem;
-  transition: border-color .3s, background .3s;
+  display: grid; justify-items: center; gap: .35rem;
+  margin: 2rem auto 0; padding: .2rem 1rem;
+  text-decoration: none; color: var(--cream);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, .9), 0 0 2px rgba(0, 0, 0, .8);
 }
 .tonight[hidden] { display: none; }
-.tonight:hover { border-color: var(--gold); background: rgba(152, 44, 42, .35); }
-.tonight-label { color: var(--smoke); text-transform: uppercase; font-size: .72rem; letter-spacing: .2em; }
-.tonight-name { font-weight: 500; }
-.tonight-time { color: var(--gold); }
-.live-dot { width: 9px; height: 9px; border-radius: 50%; background: #ff3b30; box-shadow: 0 0 0 0 rgba(255, 59, 48, .7); animation: pulse 1.8s infinite; }
-@keyframes pulse { 70% { box-shadow: 0 0 0 10px rgba(255, 59, 48, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); } }
+.tonight-label {
+  display: flex; align-items: center; gap: .9rem;
+  font: italic 400 clamp(1.15rem, 2.6vw, 1.45rem)/1 var(--f-script); color: var(--gold);
+}
+.tonight-label::before, .tonight-label::after { content: ""; width: clamp(1.5rem, 6vw, 3.5rem); height: 1px; background: currentColor; opacity: .6; }
+.tonight-name {
+  font: 700 clamp(1.3rem, 3.4vw, 2rem)/1.15 var(--f-display); letter-spacing: .06em;
+  text-transform: uppercase; text-align: center;
+  background: linear-gradient(currentColor, currentColor) 50% 100% / 0 1px no-repeat;
+  padding-bottom: .15rem; transition: background-size .5s var(--ease), color .3s;
+}
+.tonight:hover .tonight-name { color: var(--gold); background-size: 100% 1px; }
+.tonight-time { font-size: .78rem; letter-spacing: .26em; text-transform: uppercase; color: var(--smoke); }
 
 .hero-actions { margin-top: 1.8rem; display: flex; gap: .9rem; justify-content: center; flex-wrap: wrap; }
 
@@ -371,7 +376,15 @@ html:not(.anim) .marquee-row[data-dir="-1"] { animation-direction: reverse; }
 .event-weekday { font: italic 400 1.05rem/1 var(--f-script); opacity: .9; }
 .event-body { padding: 1.1rem 1.3rem 1.2rem; display: grid; align-content: start; gap: .45rem; min-width: 0; }
 .event-meta { display: flex; flex-wrap: wrap; gap: .4rem .9rem; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
-.event-meta .today { background: #ff3b30; color: #fff; padding: .1rem .5rem; border-radius: 3px; letter-spacing: .14em; }
+/* dzisiejszy koncert — pieczątka jak na bilecie */
+.event--today .event-body { padding-right: 7.5rem; }
+.event-stamp {
+  position: absolute; top: .9rem; right: .9rem; z-index: 1; pointer-events: none;
+  padding: .35rem .6rem; border: 3px double var(--gold); border-radius: 4px;
+  font: 700 .72rem/1.1 var(--f-display); letter-spacing: .14em; text-transform: uppercase; text-align: center;
+  color: var(--gold); transform: rotate(-8deg); opacity: .88;
+}
+@media (max-width: 480px) { .event--today .event-body { padding-right: 1.3rem; padding-top: 3rem; } }
 .event-title { font: 700 clamp(1.05rem, 2.3vw, 1.3rem)/1.25 var(--f-display); letter-spacing: .02em; }
 .event-title a { text-decoration: none; }
 .event-title a::after { content: ""; position: absolute; inset: 0; }

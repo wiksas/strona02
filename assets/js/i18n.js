@@ -67,9 +67,9 @@ window.HARRIS_I18N = {
   /* teksty dynamiczne */
   dyn: {
     pl: {
-      today: "Dziś",
-      tonight: "Dziś na scenie",
-      next: "Najbliższy koncert",
+      today: "Dziś wieczorem",
+      tonight: "Dziś wieczorem gramy",
+      next: "Wkrótce na scenie",
       details: "Szczegóły",
       currency: "zł",
       offline: "Nie udało się pobrać aktualnego programu – pokazujemy ostatnio zapisany. Pełny program w kalendarzu.",
@@ -82,8 +82,8 @@ window.HARRIS_I18N = {
     },
     en: {
       today: "Tonight",
-      tonight: "Tonight on stage",
-      next: "Next concert",
+      tonight: "Tonight we play",
+      next: "Coming up on stage",
       details: "Details",
       currency: "PLN",
       offline: "Could not load the live programme – showing the last saved one. See the full calendar for details.",
