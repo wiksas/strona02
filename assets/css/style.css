@@ -124,7 +124,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .kicker.center, .section-head--center .kicker { justify-content: center; }
 
 .title {
-  font: 700 clamp(2.3rem, 6.5vw, 4.6rem)/1.02 var(--f-display);
+  font: 700 clamp(1.9rem, 6.5vw + .6rem, 4.6rem)/1.02 var(--f-display);
   letter-spacing: .02em;
   text-transform: uppercase;
 }
@@ -556,18 +556,20 @@ html.pin-gallery .shot:nth-child(3n) { height: min(51vh, 490px); }
 .notes li::before { content: "♪"; position: absolute; left: 0; color: var(--brick); }
 
 .reserve-form {
-  display: grid; grid-template-columns: repeat(6, 1fr); gap: 1.1rem 1rem;
+  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-flow: row dense; gap: 1.1rem 1rem;
   padding: clamp(1.4rem, 4vw, 2.4rem);
   background: rgba(18, 24, 38, .8); border: 1px solid var(--line);
   box-shadow: 0 40px 80px rgba(0,0,0,.45);
 }
-.field { grid-column: span 6; display: grid; gap: .4rem; min-width: 0; }
+.field { grid-column: span 6; display: grid; grid-template-columns: minmax(0, 1fr); gap: .4rem; min-width: 0; }
 .field--half { grid-column: span 2; }
 .field--full { grid-column: 1 / -1; }
 @media (min-width: 600px) { .field:not(.field--half):not(.field--full) { grid-column: span 3; } .field:first-child { grid-column: 1 / -1; } }
-@media (max-width: 480px) { .field--half { grid-column: span 3; } .field--half:last-of-type { grid-column: 1 / -1; } }
+/* telefon: liczba osób + godzina w jednym rzędzie, data na całą szerokość */
+@media (max-width: 560px) { .field--half { grid-column: span 3; } .field--date { grid-column: 1 / -1; } }
 .field label { font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--smoke); }
 .field input, .field textarea {
+  display: block; min-width: 0; max-width: 100%;
   width: 100%; min-height: 48px; padding: .7rem .9rem;
   background: rgba(7, 9, 14, .6); color: var(--cream);
   border: 1px solid var(--line); border-radius: 4px;
@@ -578,6 +580,10 @@ html.pin-gallery .shot:nth-child(3n) { height: min(51vh, 490px); }
 .field textarea { resize: vertical; }
 .field input:focus, .field textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(232, 164, 74, .18); }
 .field input.is-invalid { border-color: #ff6b5e; }
+/* natywne pola daty/godziny (zwłaszcza iOS) mają własną minimalną szerokość — wyrównujemy je do reszty */
+.field input[type="date"], .field input[type="time"] { -webkit-appearance: none; appearance: none; text-align: left; }
+.field input::-webkit-date-and-time-value { text-align: left; }
+.field input::-webkit-calendar-picker-indicator { filter: invert(.85); cursor: pointer; }
 .form-foot { display: grid; gap: .8rem; justify-items: start; margin-top: .4rem; }
 .form-hint { font-size: .82rem; color: var(--smoke); }
 .form-error { color: #ff8a7e; font-size: .9rem; }
@@ -606,6 +612,8 @@ html.pin-gallery .shot:nth-child(3n) { height: min(51vh, 490px); }
 .partners a { display: grid; place-items: center; width: 100%; height: 100%; }
 .partners img { max-height: 64px; width: auto; max-width: 100%; object-fit: contain; filter: grayscale(1) brightness(1.1); opacity: .75; transition: filter .4s, opacity .4s, transform .4s var(--ease); }
 .partners li:hover img { filter: none; opacity: 1; transform: scale(1.05); }
+/* na telefonach nie ma hovera — logotypy od razu w kolorze */
+@media (hover: none) { .partners img { filter: none; opacity: 1; } }
 .footer-bottom { margin-top: 4rem; display: grid; justify-items: center; gap: .6rem; text-align: center; color: var(--smoke); font-size: .9rem; }
 .footer-logo { width: 180px; height: auto; margin-bottom: .8rem; opacity: .9; }
 .footer-bottom a { text-decoration: none; }
@@ -630,7 +638,7 @@ html.pin-gallery .shot:nth-child(3n) { height: min(51vh, 490px); }
 @media (max-width: 600px) { .lb-nav { top: auto; bottom: 1rem; translate: none; } }
 
 /* karta menu: strona na pełną szerokość, przewijana w pionie */
-.lightbox--doc { overflow-y: auto; overscroll-behavior: contain; place-items: start center; padding: 1.5rem 0 6rem; }
+.lightbox--doc { overflow-y: auto; overscroll-behavior: contain; place-items: start center; padding: 4.75rem 0 6rem; }
 .lightbox--doc img { width: min(94vw, 960px); max-width: none; max-height: none; height: auto; }
 .lightbox--doc .lb-close, .lightbox--doc .lb-nav, .lightbox--doc .lb-count { position: fixed; z-index: 2; }
 .lightbox--doc .lb-nav { top: auto; bottom: 1rem; translate: none; }
