@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Harris Piano Jazz Bar | Codziennie muzyka na żywo</title>
+  <meta name="description" content="Harris Piano Jazz Bar – Rynek Główny 28, Kraków. Od 1997 roku codziennie muzyka na żywo: jazz, blues, funk, soul, hip-hop.">
+  <meta name="theme-color" content="#07090e">
+  <meta property="og:title" content="Harris Piano Jazz Bar">
+  <meta property="og:description" content="Codziennie muzyka na żywo – Rynek Główny 28, Kraków">
+  <meta property="og:image" content="assets/img/logo2.png">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/png" href="assets/img/logo2.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@0,500;1,400;1,600&family=Fira+Sans:wght@300;400;500;700;900&family=Fira+Sans+Condensed:wght@800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://harris.krakow.pl">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script>
+    document.documentElement.classList.add('js');
+    setTimeout(function () { document.documentElement.classList.add('ready'); }, 3000);
+  </script>
+</head>
+<body>
+  <a class="skip" href="#koncerty" data-i18n="skip">Przejdź do treści</a>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="progress" aria-hidden="true"><span></span></div>
+
+  <!-- ============ HEADER ============ -->
+  <header class="site-header" id="siteHeader">
+    <a class="brand" href="#top" aria-label="Harris Piano Jazz Bar – start">
+      <img src="assets/img/logo.png" width="274" height="118" alt="Harris Piano Jazz Bar">
+    </a>
+    <nav class="nav" id="nav" aria-label="Menu główne">
+      <a href="#koncerty" data-i18n="nav.concerts">Koncerty</a>
+      <a href="#o-nas" data-i18n="nav.about">O nas</a>
+      <a href="#galeria" data-i18n="nav.gallery">Galeria</a>
+      <a href="#menu" data-i18n="nav.food">Menu</a>
+      <a href="#znajdz-nas" data-i18n="nav.find">Znajdź nas</a>
+      <a href="#rezerwacja" class="nav-cta" data-i18n="nav.reserve">Rezerwacja</a>
+    </nav>
+    <div class="header-tools">
+      <div class="lang" role="group" aria-label="Język / Language">
+        <button type="button" data-lang="pl" aria-pressed="true">PL</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="nav">
+        <span></span><span></span><span class="sr" data-i18n="nav.menu">Menu</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="top">
+      <div class="hero-media" aria-hidden="true">
+        <img class="hero-img" src="assets/img/gallery/g09.jpg" alt="" fetchpriority="high">
+        <div class="hero-light"></div>
+        <div class="smoke smoke-a"></div>
+        <div class="smoke smoke-b"></div>
+      </div>
+
+      <div class="hero-inner">
+        <img class="hero-logo" src="assets/img/logo.png" width="274" height="118" alt="Harris Piano Jazz Bar">
+        <p class="hero-tagline" data-i18n="hero.live">Codziennie muzyka na żywo!</p>
+        <p class="genres" aria-label="Jazz, Blues, Funk, Soul, Hip-hop">
+          <span class="g-jazz">Jazz</span>
+          <span class="g-blues">Blues</span>
+          <span class="g-funk">Funk</span>
+          <span class="g-soul">Soul</span>
+          <span class="g-hh">Hip-Hop</span><span class="g-dots">…</span>
+        </p>
+
+        <a class="tonight" id="tonight" href="#koncerty" hidden>
+          <span class="live-dot" aria-hidden="true"></span>
+          <span class="tonight-label"></span>
+          <strong class="tonight-name"></strong>
+          <span class="tonight-time"></span>
+        </a>
+
+        <div class="hero-actions">
+          <a class="btn btn-red" href="#rezerwacja" data-i18n="nav.reserve">Rezerwacja</a>
+          <a class="btn btn-ghost" href="#znajdz-nas" data-i18n="nav.find">Znajdź nas</a>
+        </div>
+
+        <dl class="hours">
+          <div>
+            <dt data-i18n="hours.weekdays">Poniedziałek – Piątek</dt>
+            <dd data-i18n="hours.from13">13:00 – do ostatniego gościa</dd>
+          </div>
+          <div>
+            <dt data-i18n="hours.weekend">Sobota i niedziela</dt>
+            <dd data-i18n="hours.from12">12:00 – do ostatniego gościa</dd>
+          </div>
+        </dl>
+      </div>
+
+      <a class="scroll-cue" href="#koncerty" aria-label="Przewiń w dół">
+        <span data-i18n="hero.scroll">Przewiń</span>
+        <i aria-hidden="true"></i>
+      </a>
+    </section>
+
+    <!-- ============ MARQUEE ============ -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-row" data-dir="1">
+        <div class="marquee-track">
+          <span>Jazz</span><b>✦</b><span>Blues</span><b>✦</b><span>Funk</span><b>✦</b><span>Soul</span><b>✦</b><span>Hip-Hop</span><b>✦</b><span>Jam Session</span><b>✦</b><span>Swing</span><b>✦</b><span>Fusion</span><b>✦</b><span>Latin</span><b>✦</b>
+        </div>
+      </div>
+      <div class="marquee-row marquee-row--alt" data-dir="-1">
+        <div class="marquee-track">
+          <span>Rynek Główny 28</span><b>♪</b><span>Kraków</span><b>♪</b><span>od 1997</span><b>♪</b><span>Live every night</span><b>♪</b><span>Rynek Główny 28</span><b>♪</b><span>Kraków</span><b>♪</b><span>od 1997</span><b>♪</b><span>Live every night</span><b>♪</b>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ CONCERTS ============ -->
+    <section class="section concerts" id="koncerty">
+      <div class="wrap">
+        <header class="section-head">
+          <p class="kicker reveal" data-i18n="events.kicker">Scena · Rynek Główny 28</p>
+          <h2 class="title split" data-i18n="events.title">Nadchodzące koncerty</h2>
+          <p class="lead reveal" data-i18n="events.lead">Koncerty zaczynamy zwykle o 21:30. Przyjdź wcześniej – najlepsze miejsca znikają szybko.</p>
+        </header>
+
+        <p class="events-note" id="eventsNote" hidden></p>
+        <ol class="events" id="events" aria-live="polite">
+          <li class="event event--skeleton" aria-hidden="true"></li>
+          <li class="event event--skeleton" aria-hidden="true"></li>
+          <li class="event event--skeleton" aria-hidden="true"></li>
+          <li class="event event--skeleton" aria-hidden="true"></li>
+        </ol>
+
+        <div class="center reveal">
+          <a class="btn btn-ghost" href="https://harris.krakow.pl/kalendarz/" target="_blank" rel="noopener" data-i18n="events.all">Pełny kalendarz</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ABOUT ============ -->
+    <section class="section about" id="o-nas">
+      <div class="wrap about-grid">
+        <div class="about-vinyl" aria-hidden="true">
+          <div class="vinyl">
+            <div class="vinyl-label"><img src="assets/img/logo2.png" alt=""></div>
+          </div>
+          <div class="tonearm"></div>
+        </div>
+
+        <div class="about-copy">
+          <p class="kicker reveal" data-i18n="about.kicker">Od stycznia 1997</p>
+          <h2 class="title split" data-i18n="about.title">O nas</h2>
+          <p class="statement" id="statement" data-i18n="about.statement">Drugi w Europie i jedyny taki w Polsce klub, w którym codziennie odbywają się koncerty autorskiej muzyki jazzowej.</p>
+        </div>
+      </div>
+
+      <div class="wrap about-story">
+        <figure class="story-photo story-photo--a" data-speed="-0.12">
+          <img src="assets/img/gallery/g06.jpg" alt="Bar w Harris Piano Jazz Bar" loading="lazy">
+        </figure>
+        <div class="story-text">
+          <p class="reveal" data-i18n="about.p1">Marzenie o miejscu z doskonałą muzyką, świetną obsługą, przyjaznymi, niezwykłymi ludźmi i klimatycznym wnętrzem – Harris łączy to wszystko z naturalną lekkością. Rynek Główny 28 na stałe wpisał się w klubowy kalendarz Krakowa.</p>
+          <p class="reveal" data-i18n="about.p2">Gramy szeroko rozumiany jazz – od klasyki, przez wszelkie mieszanki, po progres. Nie zamykamy się na muzykę inną, poszukującą, ale zawsze dobrą. Do tego dobry drink, aromatyczne piwo albo coś mocniejszego.</p>
+          <p class="reveal" data-i18n="about.p3">U nas goście są blisko muzyków – a podczas jam sessions często sami wchodzą na scenę. Jazz, fusion, latin, funk i soul: przynieś instrument albo po prostu słuchaj.</p>
+        </div>
+        <figure class="story-photo story-photo--b" data-speed="0.1">
+          <img src="assets/img/gallery/g07.jpg" alt="Publiczność podczas koncertu" loading="lazy">
+        </figure>
+      </div>
+
+      <div class="wrap stats">
+        <div class="stat reveal">
+          <strong data-count="1997" data-plain>1997</strong>
+          <span data-i18n="stats.since">rok otwarcia klubu</span>
+        </div>
+        <div class="stat reveal">
+          <strong><span data-count="7">7</span>/7</strong>
+          <span data-i18n="stats.daily">dni w tygodniu z muzyką na żywo</span>
+        </div>
+        <div class="stat reveal">
+          <strong><span data-count="4000">4000</span>+</strong>
+          <span data-i18n="stats.gigs">koncertów w naszym kalendarzu online</span>
+        </div>
+        <div class="stat reveal">
+          <strong data-count="28">28</strong>
+          <span data-i18n="stats.address">Rynek Główny – serce Krakowa</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PIANO ============ -->
+    <section class="section piano-sec" id="piano">
+      <div class="wrap">
+        <header class="section-head section-head--center">
+          <p class="kicker reveal">Piano Jazz Bar</p>
+          <h2 class="title split" data-i18n="piano.title">Dotknij klawiszy</h2>
+          <p class="lead reveal" data-i18n="piano.lead">Zagraj coś po swojemu – albo posłuchaj, jak to robimy wieczorami.</p>
+        </header>
+        <div class="piano" id="piano-keys" role="group" aria-label="Pianino"></div>
+        <div class="center">
+          <button class="btn btn-red" type="button" id="playRiff" data-i18n="piano.riff">Zagraj riff</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ LEGENDS ============ -->
+    <section class="section legends" id="legendy" aria-labelledby="legendsTitle">
+      <div class="wrap">
+        <header class="section-head">
+          <p class="kicker reveal" data-i18n="legends.kicker">Na naszej scenie</p>
+          <h2 class="title split" id="legendsTitle" data-i18n="legends.title">Grali u nas</h2>
+        </header>
+      </div>
+      <div class="legend-rows">
+        <p class="legend-row" data-dir="-1">
+          <span>Art Farmer</span><span>Gary Bartz</span><span>Mike Stern</span><span>Fred Wesley</span><span>Idris Muhammad</span><span>Andy McKee</span>
+        </p>
+        <p class="legend-row legend-row--alt" data-dir="1">
+          <span>Michał Urbaniak</span><span>Jarosław Śmietana</span><span>Tomasz Szukalski</span><span>Jan Ptaszyn Wróblewski</span><span>Krzysztof Ścierański</span>
+        </p>
+        <p class="legend-row" data-dir="-1">
+          <span>Adam Bałdych</span><span>Karen Edwards</span><span>Jorgos Skolias</span><span>Piotr Schmidt</span><span>Marek Bałata</span><span>Roberto Flaming</span>
+        </p>
+      </div>
+      <p class="wrap legends-foot reveal" data-i18n="legends.foot">…i setki muzyków, którzy swoim talentem i energią sprawili, że Harris jest miejscem niezwykłym.</p>
+    </section>
+
+    <!-- ============ GALLERY ============ -->
+    <section class="gallery" id="galeria">
+      <div class="gallery-pin">
+        <header class="gallery-head">
+          <p class="kicker" data-i18n="gallery.kicker">Galeria</p>
+          <h2 class="title" data-i18n="gallery.title">Wieczory, których się nie powtarza</h2>
+          <p class="gallery-hint" data-i18n="gallery.hint">Przesuń →</p>
+        </header>
+        <div class="gallery-track" id="galleryTrack"></div>
+      </div>
+    </section>
+
+    <!-- ============ MENU ============ -->
+    <section class="section menu-sec" id="menu">
+      <div class="wrap">
+        <header class="section-head section-head--center">
+          <p class="kicker reveal" data-i18n="menu.kicker">Kuchnia · Bar · Wino</p>
+          <h2 class="title split" data-i18n="menu.title">Menu</h2>
+          <p class="lead reveal" data-i18n="menu.lead">Przystawki, panini, pizza i makarony, klasyczne koktajle, Harris Spritz, piwo z beczki i karta win – do muzyki, do rozmowy, do późna.</p>
+        </header>
+        <div class="menu-books">
+          <button class="book reveal" type="button" data-book="karta">
+            <span class="book-cover"><img src="assets/img/menu/karta-01-cover.jpg" alt="" width="600" height="848" loading="lazy"></span>
+            <span class="book-label">
+              <strong data-i18n="menu.food">Karta</strong>
+              <small data-i18n="menu.foodSub">Kuchnia i bar · 11 stron</small>
+            </span>
+          </button>
+          <button class="book reveal" type="button" data-book="wino">
+            <span class="book-cover"><img src="assets/img/menu/wino-01-cover.jpg" alt="" width="510" height="900" loading="lazy"></span>
+            <span class="book-label">
+              <strong data-i18n="menu.wine">Karta win</strong>
+              <small data-i18n="menu.wineSub">Wina musujące, białe i czerwone · 15 stron</small>
+            </span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RESERVATION ============ -->
+    <section class="section reserve" id="rezerwacja">
+      <div class="wrap reserve-grid">
+        <div class="reserve-info">
+          <p class="kicker reveal" data-i18n="reserve.kicker">Zarezerwuj stolik</p>
+          <h2 class="title split" data-i18n="reserve.title">Rezerwacja</h2>
+          <a class="phone reveal" href="tel:+48124215741">12 421 57 41</a>
+          <ul class="notes">
+            <li class="reveal" data-i18n="reserve.until">Rezerwacje – mailowe i telefoniczne – przyjmujemy do godziny 20:00.</li>
+            <li class="reveal" data-i18n="reserve.double">Prosimy o niedokonywanie podwójnych rezerwacji (online i telefonicznie).</li>
+            <li class="reveal" data-i18n="reserve.limited">Liczba miejsc jest ograniczona – na specjalne koncerty warto pisać z wyprzedzeniem.</li>
+          </ul>
+        </div>
+
+        <form class="reserve-form reveal" id="reserveForm" novalidate>
+          <div class="field">
+            <label for="f-name" data-i18n="form.name">Imię i nazwisko</label>
+            <input id="f-name" name="name" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="f-email" data-i18n="form.email">E-mail</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="f-phone" data-i18n="form.phone">Telefon</label>
+            <input id="f-phone" name="phone" type="tel" autocomplete="tel" required>
+          </div>
+          <div class="field field--half">
+            <label for="f-people" data-i18n="form.people">Liczba osób</label>
+            <input id="f-people" name="people" type="number" min="1" max="40" value="2" required>
+          </div>
+          <div class="field field--half">
+            <label for="f-date" data-i18n="form.date">Data</label>
+            <input id="f-date" name="date" type="date" required>
+          </div>
+          <div class="field field--half">
+            <label for="f-time" data-i18n="form.time">Godzina</label>
+            <input id="f-time" name="time" type="time" value="20:00" required>
+          </div>
+          <div class="field field--full">
+            <label for="f-notes" data-i18n="form.notes">Dodatkowe informacje</label>
+            <textarea id="f-notes" name="notes" rows="3"></textarea>
+          </div>
+          <div class="field--full form-foot">
+            <button class="btn btn-red" type="submit" data-i18n="form.submit">Wyślij rezerwację</button>
+            <p class="form-hint" data-i18n="form.hint">Formularz otworzy Twój program pocztowy z gotową wiadomością do klubu.</p>
+            <p class="form-error" id="formError" role="alert" hidden></p>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ FIND US ============ -->
+    <section class="section find" id="znajdz-nas">
+      <div class="wrap find-grid">
+        <div class="find-info">
+          <p class="kicker reveal" data-i18n="find.kicker">Serce Starego Miasta</p>
+          <h2 class="title split" data-i18n="nav.find">Znajdź nas</h2>
+          <address class="reveal">
+            <strong>Harris Piano Jazz Bar</strong>
+            Rynek Główny 28<br>31-010 Kraków
+          </address>
+          <dl class="hours hours--plain reveal">
+            <div>
+              <dt data-i18n="hours.weekdays">Poniedziałek – Piątek</dt>
+              <dd data-i18n="hours.from13">13:00 – do ostatniego gościa</dd>
+            </div>
+            <div>
+              <dt data-i18n="hours.weekend">Sobota i niedziela</dt>
+              <dd data-i18n="hours.from12">12:00 – do ostatniego gościa</dd>
+            </div>
+          </dl>
+          <ul class="contact reveal">
+            <li><a href="tel:+48124215741">tel. 12 421 57 41</a></li>
+            <li><a href="mailto:manager.harris@gmail.com">manager.harris@gmail.com</a></li>
+            <li><a href="https://www.facebook.com/harrispianojazzbar/" target="_blank" rel="noopener">facebook.com/harrispianojazzbar</a></li>
+          </ul>
+          <div class="find-actions reveal">
+            <a class="btn btn-red" href="https://www.google.com/maps/dir/?api=1&amp;destination=Harris+Piano+Jazz+Bar,+Rynek+G%C5%82%C3%B3wny+28,+Krak%C3%B3w" target="_blank" rel="noopener" data-i18n="find.directions">Prowadź do nas</a>
+            <a class="btn btn-ghost" href="https://harris.krakow.pl/harris-online/" target="_blank" rel="noopener" data-i18n="find.tour">Zobacz klub online</a>
+          </div>
+        </div>
+        <div class="map" id="map">
+          <iframe title="Mapa – Harris Piano Jazz Bar, Rynek Główny 28, Kraków" src="https://www.google.com/maps?q=Harris+Piano+Jazz+Bar,+Rynek+G%C5%82%C3%B3wny+28,+31-010+Krak%C3%B3w&amp;z=17&amp;hl=pl&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="wrap">
+      <p class="kicker center" data-i18n="footer.friends">Przyjaciele klubu</p>
+      <ul class="partners">
+        <li><a href="http://jazzitup.pl/" target="_blank" rel="noopener" title="Jazzitup.pl"><img src="assets/img/partners/jazzitup.png" alt="Jazzitup.pl" loading="lazy"></a></li>
+        <li><img src="assets/img/partners/baranek.png" alt="Letni Festiwal Jazzowy w Piwnicy Pod Baranami" loading="lazy"></li>
+        <li><a href="http://pl.tripadvisor.com/Attraction_Review-g274772-d1232114-Reviews-Harris_Piano_Jazz_Bar-Krakow_Lesser_Poland_Province_Southern_Poland.html" target="_blank" rel="noopener" title="TripAdvisor"><img src="assets/img/partners/tripadvisor.png" alt="TripAdvisor" loading="lazy"></a></li>
+        <li><a href="http://www.jazzjuniors.pl/" target="_blank" rel="noopener" title="Jazz Juniors"><img src="assets/img/partners/jazzjuniors.jpg" alt="Jazz Juniors" loading="lazy"></a></li>
+        <li><a href="http://www.pianoguesthouse.com/" target="_blank" rel="noopener" title="Piano Guest House"><img src="assets/img/partners/pianoguesthouse.jpg" alt="Piano Guest House" loading="lazy"></a></li>
+        <li><a href="http://www.radiokrakow.pl/" target="_blank" rel="noopener" title="Radio Kraków"><img src="assets/img/partners/radiokrakow.png" alt="Radio Kraków" loading="lazy"></a></li>
+        <li><a href="http://pilsner.pl/" target="_blank" rel="noopener" title="Pilsner Urquell"><img src="assets/img/partners/pilsner.png" alt="Pilsner Urquell" loading="lazy"></a></li>
+        <li><a href="http://bielu.pl" target="_blank" rel="noopener" title="bielu"><img src="assets/img/partners/bielu.png" alt="bielu" loading="lazy"></a></li>
+      </ul>
+
+      <div class="footer-bottom">
+        <img class="footer-logo" src="assets/img/logo.png" width="274" height="118" alt="Harris Piano Jazz Bar" loading="lazy">
+        <p>Rynek Główny 28, 31-010 Kraków · <a href="tel:+48124215741">12 421 57 41</a></p>
+        <p class="copy">© 1997–<span id="year">2026</span> Harris Piano Jazz Bar · <span data-i18n="footer.rights">Wszystkie prawa zastrzeżone</span></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ LIGHTBOX ============ -->
+  <dialog class="lightbox" id="lightbox" aria-label="Galeria" data-lenis-prevent>
+    <button class="lb-close" type="button" data-lb="close" aria-label="Zamknij">×</button>
+    <button class="lb-nav lb-prev" type="button" data-lb="prev" aria-label="Poprzednie">‹</button>
+    <img id="lbImg" alt="">
+    <button class="lb-nav lb-next" type="button" data-lb="next" aria-label="Następne">›</button>
+    <p class="lb-count" id="lbCount"></p>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.11/dist/lenis.min.js" defer></script>
+  <script src="assets/js/i18n.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+</body>
+</html>
