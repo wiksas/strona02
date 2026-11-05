@@ -175,7 +175,7 @@
     });
   }, { rootMargin: "-45% 0px -50% 0px" });
   /* „top” nie ma linku w menu — wejście w hero czyści podświetlenie */
-  ["top", "koncerty", "o-nas", "piano", "legendy", "galeria", "menu", "rezerwacja", "znajdz-nas"].forEach((id) => spy.observe(document.getElementById(id)));
+  ["top", "koncerty", "o-nas", "legendy", "galeria", "menu", "rezerwacja", "znajdz-nas"].forEach((id) => spy.observe(document.getElementById(id)));
 
   /* ------------------------------------------------------------------ */
   /* reflektor w hero (podąża za kursorem / sam „szuka” na telefonie)  */
@@ -386,136 +386,6 @@
   });
 
   /* ------------------------------------------------------------------ */
-  /* pianino (Web Audio, ciepły „rhodesowy” dźwięk + pogłos)            */
-  /* ------------------------------------------------------------------ */
-  const pianoEl = $("#piano-keys");
-  const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-  const keys = new Map();
-  let whiteIndex = 0;
-  const WHITE_COUNT = 14;
-  for (let midi = 60; midi < 84; midi++) {
-    const name = NOTE_NAMES[midi % 12];
-    const octave = Math.floor(midi / 12) - 1;
-    const black = name.includes("#");
-    const k = el("button", `key${black ? " black" : ""}`);
-    k.type = "button";
-    k.dataset.midi = String(midi);
-    k.setAttribute("aria-label", `${name}${octave}`);
-    if (black) {
-      const w = (100 / WHITE_COUNT) * 0.62;
-      k.style.left = `calc(14px + (100% - 28px) * ${(whiteIndex / WHITE_COUNT - w / 200).toFixed(5)})`;
-    } else {
-      whiteIndex++;
-      if (name === "C") k.append(el("span", null, `C${octave}`));
-    }
-    keys.set(midi, k);
-    pianoEl.append(k);
-  }
-
-  let ctx = null;
-  let master = null;
-  function audio() {
-    if (ctx) { if (ctx.state === "suspended") ctx.resume(); return ctx; }
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return null;
-    /* stała częstotliwość próbkowania — bez niej Chromium potrafi zgłosić inną wartość
-       niż faktyczna i odrzucić bufor pogłosu */
-    try { ctx = new AC({ sampleRate: 48000, latencyHint: "interactive" }); } catch { ctx = new AC(); }
-    const comp = ctx.createDynamicsCompressor();
-    const out = ctx.createGain();
-    out.gain.value = 0.55;
-    const lp = ctx.createBiquadFilter();
-    lp.type = "lowpass"; lp.frequency.value = 3800;
-    master = ctx.createGain();
-    master.connect(lp);
-    lp.connect(comp);
-    comp.connect(out); out.connect(ctx.destination);
-    try {
-      const verb = ctx.createConvolver();
-      const len = Math.round(ctx.sampleRate * 2.2);
-      const ir = ctx.createBuffer(2, len, ctx.sampleRate);
-      for (let c = 0; c < 2; c++) {
-        const d = ir.getChannelData(c);
-        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
-      }
-      verb.buffer = ir;
-      const wet = ctx.createGain(); wet.gain.value = 0.28;
-      lp.connect(verb); verb.connect(wet); wet.connect(comp);
-    } catch (err) {
-      console.warn("Harris: pogłos niedostępny, gram bez niego.", err);
-    }
-    return ctx;
-  }
-
-  function playNote(midi, when = 0, dur = 1.6, vel = 0.9) {
-    const ac = audio();
-    if (!ac) return;
-    const t = ac.currentTime + when;
-    const f = 440 * Math.pow(2, (midi - 69) / 12);
-    const env = ac.createGain();
-    env.gain.setValueAtTime(0.0001, t);
-    env.gain.exponentialRampToValueAtTime(0.32 * vel, t + 0.008);
-    env.gain.exponentialRampToValueAtTime(0.12 * vel, t + 0.25);
-    env.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    env.connect(master);
-    const partials = [[1, "sine", 1], [2, "sine", 0.28], [1.003, "triangle", 0.12], [7.02, "sine", 0.05]];
-    partials.forEach(([mul, type, g]) => {
-      const o = ac.createOscillator();
-      const og = ac.createGain();
-      o.type = type; o.frequency.value = f * mul;
-      og.gain.setValueAtTime(g, t);
-      if (mul > 6) og.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
-      o.connect(og); og.connect(env);
-      o.start(t); o.stop(t + dur + 0.05);
-    });
-  }
-
-  function flashKey(midi, ms = 220, delay = 0) {
-    const k = keys.get(midi);
-    if (!k) return;
-    setTimeout(() => {
-      k.classList.add("is-down");
-      setTimeout(() => k.classList.remove("is-down"), ms);
-    }, delay);
-  }
-
-  const activePointers = new Map();
-  function pressFromPoint(e) {
-    const k = document.elementFromPoint(e.clientX, e.clientY)?.closest(".key");
-    if (!k || !pianoEl.contains(k) || activePointers.get(e.pointerId) === k) return;
-    activePointers.set(e.pointerId, k);
-    const midi = Number(k.dataset.midi);
-    playNote(midi);
-    flashKey(midi, 260);
-  }
-  pianoEl.addEventListener("pointerdown", (e) => { e.preventDefault(); pressFromPoint(e); });
-  pianoEl.addEventListener("pointermove", (e) => { if (activePointers.has(e.pointerId)) pressFromPoint(e); });
-  ["pointerup", "pointercancel", "pointerleave"].forEach((t) =>
-    pianoEl.addEventListener(t, (e) => activePointers.delete(e.pointerId))
-  );
-  pianoEl.addEventListener("click", (e) => {
-    if (e.detail !== 0) return; // tylko klawiatura (Enter / Spacja)
-    const k = e.target.closest(".key");
-    if (!k) return;
-    playNote(Number(k.dataset.midi));
-    flashKey(Number(k.dataset.midi), 260);
-  });
-
-  /* krótki bluesowy riff w C z akordem C7 na koniec (swing 2:1) */
-  const RIFF = [
-    [72, 0], [75, 0.33], [76, 0.5], [79, 1], [81, 1.33], [82, 1.5], [79, 2], [77, 2.33],
-    [75, 2.5], [72, 3], [70, 3.33], [72, 3.5]
-  ];
-  const RIFF_CHORD = [60, 64, 67, 70, 74];
-  $("#playRiff").addEventListener("click", () => {
-    if (!audio()) return;
-    const beat = 0.34;
-    RIFF.forEach(([m, b]) => { playNote(m, b * beat, 0.9, 0.85); flashKey(m, 180, b * beat * 1000); });
-    const end = 4.2 * beat;
-    RIFF_CHORD.forEach((m, i) => { playNote(m, end + i * 0.025, 2.6, 0.7); flashKey(m, 900, (end + i * 0.025) * 1000); });
-  });
-
-  /* ------------------------------------------------------------------ */
   /* formularz rezerwacji → gotowa wiadomość e-mail                     */
   /* ------------------------------------------------------------------ */
   const form = $("#reserveForm");
@@ -682,18 +552,6 @@
         onUpdate: () => { n.textContent = String(Math.round(obj.v)); },
         scrollTrigger: { trigger: n, start: "top 90%", once: true }
       });
-    });
-
-    /* pianino — fala klawiszy przy wejściu */
-    ScrollTrigger.create({
-      trigger: pianoEl, start: "top 75%", once: true,
-      onEnter: () => {
-        [...keys.keys()].forEach((m, i) => flashKey(m, 160, i * 38));
-      }
-    });
-    gsap.from(pianoEl, {
-      y: 60, rotateX: 25, opacity: 0, transformPerspective: 900, duration: 1.2, ease: "power3.out",
-      scrollTrigger: { trigger: pianoEl, start: "top 90%", once: true }
     });
 
     /* legendy — rzędy przesuwają się w przeciwnych kierunkach */

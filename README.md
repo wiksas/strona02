@@ -15,9 +15,9 @@ python -m http.server 5510
 
 | Plik | Rola |
 | --- | --- |
-| `index.html` | cała strona (hero, koncerty, o nas, pianino, legendy, galeria, menu, rezerwacja, dojazd, partnerzy) |
+| `index.html` | cała strona (hero, koncerty, o nas, legendy, galeria, menu, rezerwacja, dojazd, partnerzy) |
 | `assets/css/style.css` | wygląd, wersja mobilna, efekty |
-| `assets/js/main.js` | animacje przewijania (GSAP + ScrollTrigger + Lenis z CDN), program koncertów, galeria, menu, pianino, formularz |
+| `assets/js/main.js` | animacje przewijania (GSAP + ScrollTrigger + Lenis z CDN), program koncertów, galeria, menu, formularz |
 | `assets/js/i18n.js` | tłumaczenia EN (PL jest w HTML) |
 | `assets/img/` | logo, tła, zdjęcia z galerii, strony karty menu i karty win (`img/menu/`) oraz logotypy partnerów – pobrane z obecnej strony |
 
