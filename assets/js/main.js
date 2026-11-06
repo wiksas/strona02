@@ -1,22 +1,94 @@
-/* Harris Piano Jazz Bar — interakcje i animacje przewijania.
-   GSAP + ScrollTrigger + Lenis są ładowane z CDN; jeśli ich zabraknie,
-   strona działa dalej bez animacji (cała treść pozostaje widoczna). */
+/* Harris Piano Jazz Bar — interakcje.
+   Bez bibliotek: animacje są w CSS, a tu tylko IntersectionObserver i obsługa elementów.
+   Wspólny dla wersji PL (/) i EN (/en/) — język bierze z <html lang>. */
 (() => {
   "use strict";
 
   const $ = (s, root = document) => root.querySelector(s);
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
   const root = document.documentElement;
+  const lang = root.lang === "en" ? "en" : "pl";
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const canHover = matchMedia("(hover: hover) and (pointer: fine)").matches;
-  const hasGsap = !!(window.gsap && window.ScrollTrigger);
-  const animate = hasGsap && !reduceMotion;
-  const I18N = window.HARRIS_I18N;
+  /* katalog główny strony — działa z / i z /en/ */
+  const SITE = new URL("../../", document.currentScript.src);
+  const asset = (path) => new URL(path, SITE).href;
 
   const EVENTS_API = "https://harris.krakow.pl/wp-json/tribe/events/v1/events";
   const RESERVATION_EMAIL = "rezerwujestolik@gmail.com";
+  const PHONE = "12 421 57 41";
+  const VENUE = {
+    "@type": "BarOrPub",
+    "name": "Harris Piano Jazz Bar",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Rynek Główny 28",
+      "postalCode": "31-010",
+      "addressLocality": "Kraków",
+      "addressRegion": "małopolskie",
+      "addressCountry": "PL"
+    }
+  };
 
-  /* Ostatni zapisany program (05.11.2026) — używany tylko gdy API nie odpowiada. */
+  const T = {
+    pl: {
+      today: "Dziś wieczorem",
+      tonight: "Dziś wieczorem gramy",
+      next: "Wkrótce na scenie",
+      details: "Szczegóły",
+      currency: "zł",
+      offline: "Nie udało się pobrać aktualnego programu – pokazujemy ostatnio zapisany. Pełny program jest w kalendarzu.",
+      empty: "Program na najbliższe dni pojawi się wkrótce – zajrzyj do pełnego kalendarza.",
+      menuOpen: "Otwórz menu",
+      menuClose: "Zamknij menu",
+      photo: "Zdjęcie",
+      page: "Strona",
+      errors: {
+        name: "Podaj imię i nazwisko.",
+        email: "Podaj poprawny adres e-mail, np. jan@example.com.",
+        phone: "Podaj numer telefonu (co najmniej 9 cyfr).",
+        people: "Podaj liczbę osób od 1 do 40.",
+        date: "Wybierz datę – dziś lub późniejszą.",
+        time: "Wybierz godzinę.",
+        consent: "Zaznacz zgodę, abyśmy mogli obsłużyć rezerwację."
+      },
+      formInvalid: "Popraw zaznaczone pola – opis błędu jest pod każdym z nich.",
+      sending: "Otwieram pocztę…",
+      sent: `Otworzyliśmy Twój program pocztowy z gotową wiadomością – wystarczy ją wysłać. Jeśli nic się nie otworzyło, zadzwoń: <a href="tel:+48124215741">${PHONE}</a> lub napisz na <a href="mailto:${RESERVATION_EMAIL}">${RESERVATION_EMAIL}</a>.`,
+      mailSubject: "Rezerwacja stolika",
+      people: "os.",
+      mailLines: ["Imię i nazwisko", "E-mail", "Telefon", "Liczba osób", "Data", "Godzina", "Dodatkowe informacje"]
+    },
+    en: {
+      today: "Tonight",
+      tonight: "Tonight we play",
+      next: "Coming up on stage",
+      details: "Details",
+      currency: "PLN",
+      offline: "Could not load the live programme – showing the last saved one. See the full calendar for details.",
+      empty: "The programme for the coming days will appear soon – check the full calendar.",
+      menuOpen: "Open menu",
+      menuClose: "Close menu",
+      photo: "Photo",
+      page: "Page",
+      errors: {
+        name: "Please enter your full name.",
+        email: "Please enter a valid e-mail address, e.g. jan@example.com.",
+        phone: "Please enter a phone number (at least 9 digits).",
+        people: "Please enter between 1 and 40 guests.",
+        date: "Please choose today or a later date.",
+        time: "Please choose a time.",
+        consent: "Please tick the consent box so we can handle your booking."
+      },
+      formInvalid: "Please correct the marked fields – each one says what is missing.",
+      sending: "Opening your e-mail…",
+      sent: `Your e-mail app has opened with a ready-made message – just send it. If nothing opened, call <a href="tel:+48124215741">+48 ${PHONE}</a> or write to <a href="mailto:${RESERVATION_EMAIL}">${RESERVATION_EMAIL}</a>.`,
+      mailSubject: "Table reservation",
+      people: "guests",
+      mailLines: ["Name", "E-mail", "Phone", "Guests", "Date", "Time", "Additional information"]
+    }
+  }[lang];
+
+  /* Ostatni zapisany program (05.11.2026) — używany tylko gdy kalendarz nie odpowiada. */
   const EVENTS_SNAPSHOT = [
     { title: "AMP TRIO", start: "2026-11-05 21:30:00", cost: "PLN25 - PLN30", url: "https://harris.krakow.pl/koncert/amp-trio-2/", desc: "Krakowski skład, który łączy nowoczesny jazz z klasycznym brzmieniem tria organowego." },
     { title: "MACIEJ KŁECZEK & FRIENDS", start: "2026-11-06 21:30:00", cost: "PLN30 - PLN35", url: "https://harris.krakow.pl/koncert/maciej-kleczek-friends-5/", desc: "Maciej Kłeczek – gitara, śpiew · Jacek Chruściński – gitara basowa · Bart Kuraś – perkusja" },
@@ -28,26 +100,13 @@
     { title: "GROBORZ TRIO", start: "2026-11-12 21:30:00", cost: "PLN25 - PLN30", url: "https://harris.krakow.pl/koncert/groborz-trio-7/", desc: "" }
   ];
 
-  let lang = "pl";
-  let lenis = null;
-  /* [plik, szerokość, wysokość] — wymiary rezerwują miejsce przed załadowaniem zdjęć */
-  const GALLERY = [
-    [0, 957, 640], [2, 640, 959], [11, 902, 600], [7, 957, 640], [3, 600, 900], [5, 959, 640],
-    [8, 957, 640], [12, 600, 902], [4, 959, 640], [14, 640, 958], [1, 623, 417], [10, 640, 957],
-    [13, 902, 600], [6, 640, 959], [15, 900, 600], [9, 901, 600]
-  ].map(([n, w, h]) => ({ src: `assets/img/gallery/g${String(n).padStart(2, "0")}.jpg`, w, h }));
-
-  let events = null;
-  let eventsOffline = false;
-
   /* ------------------------------------------------------------------ */
-  /* helpers                                                            */
+  /* pomocnicze                                                          */
   /* ------------------------------------------------------------------ */
   const decoder = document.createElement("textarea");
   const decode = (s) => { decoder.innerHTML = s; return decoder.value; };
   const stripHtml = (s) => decode(String(s).replace(/<[^>]*>/g, " ")).replace(/\\n/g, " ").replace(/\s+/g, " ").trim();
   const ymd = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  const dyn = (k) => I18N.dyn[lang][k];
 
   function el(tag, cls, text) {
     const n = document.createElement(tag);
@@ -56,184 +115,192 @@
     return n;
   }
 
-  function scrollToTarget(target) {
-    if (lenis) lenis.scrollTo(target, { offset: target === 0 ? 0 : -60, duration: 1.4 });
-    else if (target === 0) scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
-    else target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
-  }
-
-  /* ------------------------------------------------------------------ */
-  /* i18n                                                               */
-  /* ------------------------------------------------------------------ */
-  const i18nNodes = $$("[data-i18n]");
-  i18nNodes.forEach((n) => { n.dataset.pl = n.textContent.trim(); });
-
-  function setLang(next, initial = false) {
-    lang = next === "en" ? "en" : "pl";
-    root.lang = lang;
-    try { localStorage.setItem("harris-lang", lang); } catch { /* prywatny tryb */ }
-    i18nNodes.forEach((n) => {
-      const key = n.dataset.i18n;
-      n.textContent = lang === "pl" ? n.dataset.pl : (I18N.en[key] ?? n.dataset.pl);
-    });
-    $$(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
-    $(".scroll-cue").setAttribute("aria-label", dyn("skipLabel"));
-    $("#nav").setAttribute("aria-label", dyn("navLabel"));
-    splitTitles();
-    splitStatement();
-    if (events) renderEvents();
-    if (!initial && hasGsap) ScrollTrigger.refresh();
-  }
-
-  $$(".lang button").forEach((b) => b.addEventListener("click", () => setLang(b.dataset.lang)));
-
-  /* ------------------------------------------------------------------ */
-  /* tekst dzielony na litery / słowa                                   */
-  /* ------------------------------------------------------------------ */
-  function splitTitles() {
-    $$(".title.split").forEach((t) => {
-      const text = t.textContent.trim();
-      t.setAttribute("aria-label", text);
-      t.textContent = "";
-      text.split(" ").forEach((word, wi, arr) => {
-        const w = el("span", "word");
-        w.setAttribute("aria-hidden", "true");
-        [...word].forEach((ch) => w.append(el("span", "char", ch)));
-        t.append(w);
-        if (wi < arr.length - 1) t.append(" ");
+  /* jeden obserwator „wejścia na ekran” dla wszystkich jednorazowych efektów */
+  const onEnter = (() => {
+    const handlers = new WeakMap();
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (!en.isIntersecting) return;
+        io.unobserve(en.target);
+        handlers.get(en.target)?.(en.target);
       });
-      t.dataset.split = "1";
-    });
-  }
+    }, { rootMargin: "0px 0px -12% 0px" });
+    return (node, fn) => { handlers.set(node, fn); io.observe(node); };
+  })();
 
-  const HIGHLIGHT = new Set(["jedyny", "polsce", "codziennie", "only", "poland", "every", "single", "night"]);
-  function splitStatement() {
-    const s = $("#statement");
-    const text = s.textContent.trim();
-    s.textContent = "";
-    text.split(" ").forEach((word, i, arr) => {
-      const w = el("span", "w", word);
-      if (HIGHLIGHT.has(word.toLowerCase().replace(/[^\p{L}]/gu, ""))) w.classList.add("hl");
-      s.append(w);
-      if (i < arr.length - 1) s.append(" ");
-    });
-    updateStatement(statementProgress);
+  /* „wstecz” na telefonie zamyka menu i podgląd: każdy z nich dokłada wpis do historii */
+  const overlays = [];
+  let skipPop = 0;
+  function pushOverlay(close) {
+    overlays.push(close);
+    history.pushState({ overlay: overlays.length }, "");
   }
-  let statementProgress = 0;
-  function updateStatement(p) {
-    statementProgress = p;
-    const words = $$("#statement .w");
-    const lit = Math.round(p * words.length);
-    words.forEach((w, i) => w.classList.toggle("on", i < lit));
+  /* zamknięcie przyciskiem/Esc: cofamy dodany wpis, a wywołane tym popstate pomijamy */
+  function popOverlay() {
+    if (!overlays.length) return;
+    overlays.pop();
+    skipPop++;
+    history.back();
   }
+  addEventListener("popstate", () => {
+    if (skipPop) { skipPop--; return; }
+    const close = overlays.pop();
+    if (close) close(true);
+  });
 
   /* ------------------------------------------------------------------ */
-  /* nagłówek + menu                                                    */
+  /* nagłówek i menu                                                     */
   /* ------------------------------------------------------------------ */
   const header = $("#siteHeader");
   const nav = $("#nav");
   const burger = $("#burger");
 
-  function setMenu(open) {
+  const topSentinel = el("div");
+  topSentinel.style.cssText = "position:absolute;top:0;left:0;width:1px;height:40px;pointer-events:none";
+  topSentinel.setAttribute("aria-hidden", "true");
+  document.body.prepend(topSentinel);
+  new IntersectionObserver(([en]) => header.classList.toggle("is-solid", !en.isIntersecting)).observe(topSentinel);
+
+  function setMenu(open, fromHistory = false) {
+    if (open === nav.classList.contains("is-open")) return;
     nav.classList.toggle("is-open", open);
     burger.setAttribute("aria-expanded", String(open));
-    document.body.classList.toggle("menu-open", open);
-    header.classList.remove("is-hidden");
-    if (lenis) open ? lenis.stop() : lenis.start();
+    $(".sr", burger).textContent = open ? T.menuClose : T.menuOpen;
+    root.classList.toggle("menu-open", open);
+    root.classList.toggle("no-scroll", open);
+    if (open) { pushOverlay((h) => setMenu(false, h)); $("a", nav).focus(); }
+    else if (!fromHistory) popOverlay();
   }
   burger.addEventListener("click", () => setMenu(!nav.classList.contains("is-open")));
-  addEventListener("keydown", (e) => { if (e.key === "Escape" && nav.classList.contains("is-open")) setMenu(false); });
-
-  document.addEventListener("click", (e) => {
+  /* link w menu: wpis „menu otwarte” zamieniamy na adres sekcji, żeby „wstecz” nie walczyło z przewijaniem */
+  nav.addEventListener("click", (e) => {
     const a = e.target.closest('a[href^="#"]');
-    if (!a) return;
-    const id = a.getAttribute("href");
-    const target = id === "#top" ? 0 : $(id);
-    if (target == null) return;
+    if (!a || !nav.classList.contains("is-open")) return;
     e.preventDefault();
-    setMenu(false);
-    scrollToTarget(target);
+    const id = a.getAttribute("href");
+    overlays.pop();
     history.replaceState(null, "", id);
+    setMenu(false, true);
+    $(id)?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
   });
-
-  let lastY = scrollY;
-  addEventListener("scroll", () => {
-    const y = scrollY;
-    header.classList.toggle("is-solid", y > 40);
-    const goingDown = y > lastY + 4;
-    const goingUp = y < lastY - 4;
-    if (goingDown && y > innerHeight * 0.8 && !nav.classList.contains("is-open")) header.classList.add("is-hidden");
-    else if (goingUp) header.classList.remove("is-hidden");
-    lastY = y;
-  }, { passive: true });
+  addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && nav.classList.contains("is-open")) { setMenu(false); burger.focus(); }
+  });
 
   const navLinks = $$(".nav a");
   const spy = new IntersectionObserver((entries) => {
     entries.forEach((en) => {
       if (!en.isIntersecting) return;
-      navLinks.forEach((a) => a.classList.toggle("is-active", a.getAttribute("href") === `#${en.target.id}`));
+      navLinks.forEach((a) => {
+        const on = a.getAttribute("href") === `#${en.target.id}`;
+        a.classList.toggle("is-active", on);
+        if (on) a.setAttribute("aria-current", "location"); else a.removeAttribute("aria-current");
+      });
     });
   }, { rootMargin: "-45% 0px -50% 0px" });
-  /* „top” nie ma linku w menu — wejście w hero czyści podświetlenie */
-  ["top", "koncerty", "o-nas", "legendy", "galeria", "menu", "rezerwacja", "znajdz-nas"].forEach((id) => spy.observe(document.getElementById(id)));
+  $$("main > section[id]").forEach((s) => spy.observe(s));
 
   /* ------------------------------------------------------------------ */
-  /* reflektor w hero (podąża za kursorem / sam „szuka” na telefonie)  */
+  /* pojawianie się treści, zdanie „O nas”, liczniki                     */
   /* ------------------------------------------------------------------ */
-  const hero = $(".hero");
-  const spot = { x: 0.5, y: 0.4, tx: 0.5, ty: 0.4 };
-  let heroVisible = true;
-  let spotRaf = 0;
+  if (!reduceMotion) {
+    root.classList.add("reveal-on");
+    $$(".reveal").forEach((n) => onEnter(n, (t) => t.classList.add("is-in")));
 
-  if (canHover) {
-    hero.addEventListener("pointermove", (e) => {
-      const r = hero.getBoundingClientRect();
-      spot.tx = (e.clientX - r.left) / r.width;
-      spot.ty = (e.clientY - r.top) / r.height;
-    });
-    hero.addEventListener("pointerleave", () => { spot.tx = 0.5; spot.ty = 0.4; });
-  }
-
-  function spotLoop(t) {
-    if (!canHover && !reduceMotion) {
-      spot.tx = 0.5 + Math.sin(t / 2600) * 0.28;
-      spot.ty = 0.38 + Math.sin(t / 1900) * 0.12;
+    const st = $("#statement");
+    if (st) {
+      const words = st.textContent.trim().split(/\s+/);
+      const hl = new Set($$(".hl", st).map((n) => n.textContent.trim()));
+      st.textContent = "";
+      words.forEach((w, i) => {
+        const s = el("span", hl.has(w.replace(/[.,]/g, "")) ? "w hl" : "w", w);
+        s.style.setProperty("--i", i);
+        st.append(s, i < words.length - 1 ? " " : "");
+      });
+      st.classList.add("is-split");
+      onEnter(st, (t) => t.classList.add("is-in"));
     }
-    spot.x += (spot.tx - spot.x) * 0.08;
-    spot.y += (spot.ty - spot.y) * 0.08;
-    hero.style.setProperty("--mx", `${(spot.x * 100).toFixed(2)}%`);
-    hero.style.setProperty("--my", `${(spot.y * 100).toFixed(2)}%`);
-    spotRaf = heroVisible ? requestAnimationFrame(spotLoop) : 0;
+
+    $$("[data-count]").forEach((n) => {
+      const target = Number(n.dataset.count);
+      const from = n.hasAttribute("data-plain") ? 1900 : 0;
+      onEnter(n, () => {
+        const t0 = performance.now();
+        const step = (t) => {
+          const p = Math.min((t - t0) / 1400, 1);
+          n.textContent = String(Math.round(from + (target - from) * (1 - Math.pow(1 - p, 3))));
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      });
+    });
   }
-  new IntersectionObserver(([en]) => {
-    heroVisible = en.isIntersecting;
-    if (heroVisible && !spotRaf) spotRaf = requestAnimationFrame(spotLoop);
-  }).observe(hero);
 
   /* ------------------------------------------------------------------ */
-  /* koncerty (na żywo z kalendarza harris.krakow.pl)                   */
+  /* koncerty — na żywo z kalendarza harris.krakow.pl                    */
   /* ------------------------------------------------------------------ */
   const eventsList = $("#events");
   const eventsNote = $("#eventsNote");
 
   function normalizeApiEvent(e) {
-    /* opisy zawierają dopisek „*wstęp: …” — cena jest już pokazana osobno */
+    /* opisy zawierają dopisek „*wstęp: …” — cena jest pokazana osobno */
     const desc = stripHtml(e.description || "").split("*")[0].trim();
     return { title: decode(e.title), start: e.start_date, cost: e.cost || "", url: e.url, desc };
   }
-
-  function formatCost(cost) {
-    const c = cost.replace(/PLN\s?/gi, "").replace(/\s*-\s*/, "–").trim();
-    return c ? `${c} ${dyn("currency")}` : "";
-  }
-
   function parseStart(s) {
     const [d, t = "21:30"] = s.split(" ");
     const [Y, M, D] = d.split("-").map(Number);
     return { date: new Date(Y, M - 1, D), ymd: d, time: t.slice(0, 5) };
   }
+  const costRange = (cost) => (cost.match(/\d+(?:[.,]\d+)?/g) || []).map((n) => Number(n.replace(",", ".")));
+  function formatCost(cost) {
+    const n = costRange(cost);
+    if (!n.length) return "";
+    return `${n.length > 1 ? `${n[0]}–${n[n.length - 1]}` : n[0]} ${T.currency}`;
+  }
 
-  function renderEvents() {
+  /* dane Event dla wyszukiwarki — dokładnie te koncerty, które widać na stronie */
+  function eventsJsonLd(list) {
+    $("#eventsJsonLd")?.remove();
+    const graph = list.map((e) => {
+      const { ymd: day, time } = parseStart(e.start);
+      const prices = costRange(e.cost);
+      const node = {
+        "@type": "MusicEvent",
+        "name": e.title,
+        "startDate": `${day}T${time}:00${tzOffset(day)}`,
+        "eventStatus": "https://schema.org/EventScheduled",
+        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+        "location": VENUE,
+        "organizer": { "@type": "Organization", "name": "Harris Piano Jazz Bar", "url": "https://harris.krakow.pl/" },
+        "image": [asset("assets/img/harris-piano-jazz-bar-koncert-krakow-og.jpg")],
+        "url": e.url
+      };
+      if (e.desc) node.description = e.desc;
+      if (prices.length) {
+        node.offers = prices.length > 1
+          ? { "@type": "AggregateOffer", "lowPrice": prices[0], "highPrice": prices[prices.length - 1], "priceCurrency": "PLN", "url": e.url, "availability": "https://schema.org/InStock" }
+          : { "@type": "Offer", "price": prices[0], "priceCurrency": "PLN", "url": e.url, "availability": "https://schema.org/InStock" };
+      }
+      return node;
+    });
+    const s = el("script");
+    s.type = "application/ld+json";
+    s.id = "eventsJsonLd";
+    s.textContent = JSON.stringify({ "@context": "https://schema.org", "@graph": graph });
+    document.head.append(s);
+  }
+  /* strefa czasowa Krakowa dla danego dnia (czas letni / zimowy) */
+  function tzOffset(day) {
+    const [Y, M, D] = day.split("-").map(Number);
+    const probe = new Date(Date.UTC(Y, M - 1, D, 12));
+    const local = new Date(probe.toLocaleString("en-US", { timeZone: "Europe/Warsaw" }));
+    const utc = new Date(probe.toLocaleString("en-US", { timeZone: "UTC" }));
+    const h = Math.round((local - utc) / 3600000);
+    return `${h >= 0 ? "+" : "-"}${String(Math.abs(h)).padStart(2, "0")}:00`;
+  }
+
+  function renderEvents(events, offline) {
     const today = ymd(new Date());
     const list = events.filter((e) => parseStart(e.start).ymd >= today).slice(0, 8);
     const locale = lang === "pl" ? "pl-PL" : "en-GB";
@@ -241,26 +308,31 @@
     const fWeekday = new Intl.DateTimeFormat(locale, { weekday: "long" });
     const fDay = new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long" });
 
-    eventsNote.hidden = !eventsOffline;
-    eventsNote.textContent = eventsOffline ? dyn("offline") : "";
+    eventsNote.hidden = !offline;
+    eventsNote.textContent = offline ? T.offline : "";
     eventsList.textContent = "";
+    eventsList.removeAttribute("aria-busy");
 
     if (!list.length) {
-      eventsList.append(el("li", "events-empty", dyn("empty")));
-      $("#tonight").hidden = true;
+      eventsList.append(el("li", "events-empty", T.empty));
+      $("#tonight").classList.add("is-empty");
       return;
     }
 
     list.forEach((e) => {
       const { date, ymd: day, time } = parseStart(e.start);
       const li = el("li", day === today ? "event event--today" : "event");
-      if (day === today) li.append(el("span", "event-stamp", dyn("today")));
+      if (day === today) li.append(el("span", "event-stamp", T.today));
       const dateBox = el("div", "event-date");
-      dateBox.append(
+      const timeEl = el("time");
+      timeEl.dateTime = `${day}T${time}`;
+      timeEl.append(
         el("span", "event-day", String(date.getDate())),
         el("span", "event-month", fMonth.format(date).replace(".", "")),
         el("span", "event-weekday", fWeekday.format(date))
       );
+      timeEl.style.display = "contents";
+      dateBox.append(timeEl);
       const body = el("div", "event-body");
       const meta = el("p", "event-meta");
       meta.append(el("span", null, time));
@@ -272,7 +344,7 @@
       h.append(a);
       body.append(meta, h);
       if (e.desc) body.append(el("p", "event-desc", e.desc));
-      body.append(el("span", "event-more", dyn("details")));
+      body.append(el("span", "event-more", T.details));
       li.append(dateBox, body);
       eventsList.append(li);
     });
@@ -281,21 +353,19 @@
     const { date, ymd: firstDay, time } = parseStart(first.start);
     const isToday = firstDay === today;
     const bill = $("#tonight");
-    $(".tonight-label", bill).textContent = isToday ? dyn("tonight") : dyn("next");
+    $(".tonight-label", bill).textContent = isToday ? T.tonight : T.next;
     $(".tonight-name", bill).textContent = first.title;
-    $(".tonight-time", bill).textContent = isToday ? `${fWeekday.format(date)} · ${time}` : `${fDay.format(date)} · ${time}`;
-    bill.hidden = false;
+    $(".tonight-time", bill).textContent = `${(isToday ? fWeekday : fDay).format(date)} · ${time}`;
+    bill.classList.remove("is-pending");
+    bill.removeAttribute("aria-hidden");
+    bill.removeAttribute("tabindex");
 
-    if (animate) {
-      gsap.from(eventsList.children, {
-        y: 40, opacity: 0, duration: 0.9, ease: "power3.out", stagger: 0.08,
-        scrollTrigger: { trigger: eventsList, start: "top 85%", once: true }
-      });
-      ScrollTrigger.refresh();
-    }
+    eventsJsonLd(list);
   }
 
   async function loadEvents() {
+    if (!eventsList) return;
+    eventsList.setAttribute("aria-busy", "true");
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 8000);
     try {
@@ -303,69 +373,91 @@
       const res = await fetch(`${EVENTS_API}?per_page=8&start_date=${encodeURIComponent(start)}`, { signal: ctrl.signal, credentials: "omit" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      events = (data.events || []).map(normalizeApiEvent);
-      eventsOffline = false;
+      renderEvents((data.events || []).map(normalizeApiEvent), false);
     } catch (err) {
       console.warn("Harris: kalendarz niedostępny, używam zapisanego programu.", err);
-      events = EVENTS_SNAPSHOT;
-      eventsOffline = true;
+      renderEvents(EVENTS_SNAPSHOT, true);
     } finally {
       clearTimeout(timer);
     }
-    renderEvents();
   }
 
   /* ------------------------------------------------------------------ */
-  /* galeria + lightbox                                                 */
+  /* galeria: strzałki + licznik (przesuwanie palcem robi przeglądarka)  */
   /* ------------------------------------------------------------------ */
   const track = $("#galleryTrack");
-  GALLERY.forEach((photo, i) => {
-    const b = el("button", "shot");
-    b.type = "button";
-    b.dataset.index = String(i);
-    b.setAttribute("aria-label", `Zdjęcie ${i + 1} / ${GALLERY.length}`);
-    const img = el("img");
-    img.src = photo.src; img.width = photo.w; img.height = photo.h;
-    img.alt = ""; img.loading = "lazy"; img.decoding = "async";
-    b.append(img);
-    track.append(b);
-  });
+  const shots = $$(".shot", track);
+  if (track) {
+    const prev = $('.gal-btn[data-dir="-1"]');
+    const next = $('.gal-btn[data-dir="1"]');
+    const pos = $("#galPos");
+    const visible = new Set();
+    const items = $$("li", track);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        const i = items.indexOf(en.target);
+        if (en.intersectionRatio >= 0.6) visible.add(i); else visible.delete(i);
+      });
+      if (!visible.size) return;
+      const first = Math.min(...visible);
+      const last = Math.max(...visible);
+      pos.textContent = String(first + 1);
+      prev.disabled = first === 0;
+      next.disabled = last === items.length - 1;
+    }, { root: track, threshold: [0, 0.6, 1] });
+    items.forEach((li) => io.observe(li));
+    [prev, next].forEach((b) => b.addEventListener("click", () => {
+      track.scrollBy({ left: Number(b.dataset.dir) * track.clientWidth * 0.8, behavior: reduceMotion ? "auto" : "smooth" });
+    }));
+  }
 
-  /* ten sam podgląd obsługuje galerię i karty menu (strony do przewijania) */
-  const pages = (prefix, n) => Array.from({ length: n }, (_, i) => `assets/img/menu/${prefix}-${String(i + 1).padStart(2, "0")}.jpg`);
+  /* ------------------------------------------------------------------ */
+  /* podgląd pełnoekranowy: galeria i karty menu                         */
+  /* ------------------------------------------------------------------ */
+  const pages = (prefix, n) => Array.from({ length: n }, (_, i) => ({
+    src: asset(`assets/img/menu/${prefix}-harris-krakow-${String(i + 1).padStart(2, "0")}.webp`),
+    alt: `${T.page} ${i + 1}`
+  }));
   const LB_SETS = {
-    gallery: GALLERY.map((p) => p.src),
-    karta: pages("karta", 11),
-    wino: pages("wino", 15)
+    gallery: shots.map((b) => ({ src: b.dataset.full, alt: $("img", b).alt })),
+    karta: pages("karta-menu", 11),
+    wino: pages("karta-win", 15)
   };
   const lb = $("#lightbox");
   const lbImg = $("#lbImg");
   let lbSet = LB_SETS.gallery;
   let lbIndex = 0;
+  let opener = null;
+
   function lbShow(i) {
     lbIndex = (i + lbSet.length) % lbSet.length;
-    lbImg.src = lbSet[lbIndex];
-    lbImg.alt = `Harris Piano Jazz Bar – ${lbIndex + 1}`;
+    lbImg.src = lbSet[lbIndex].src;
+    lbImg.alt = lbSet[lbIndex].alt;
     $("#lbCount").textContent = `${lbIndex + 1} / ${lbSet.length}`;
     lb.scrollTop = 0;
-    new Image().src = lbSet[(lbIndex + 1) % lbSet.length];
+    new Image().src = lbSet[(lbIndex + 1) % lbSet.length].src;
   }
-  function lbOpen(setName, i) {
+  function lbOpen(setName, i, from) {
+    opener = from;
     lbSet = LB_SETS[setName];
     lb.classList.toggle("lightbox--doc", setName !== "gallery");
     lbShow(i);
     lb.showModal();
-    if (lenis) lenis.stop();
+    root.classList.add("no-scroll");
+    pushOverlay((h) => lbClose(h));
   }
-  track.addEventListener("click", (e) => {
-    const shot = e.target.closest(".shot");
-    if (shot) lbOpen("gallery", Number(shot.dataset.index));
-  });
-  $$(".book").forEach((b) => b.addEventListener("click", () => lbOpen(b.dataset.book, 0)));
-  lb.addEventListener("close", () => { if (lenis) lenis.start(); });
+  function lbClose(fromHistory = false) {
+    if (lb.open) lb.close();
+    root.classList.remove("no-scroll");
+    if (!fromHistory) popOverlay();
+    opener?.focus({ preventScroll: true });
+  }
+  shots.forEach((b, i) => b.addEventListener("click", () => lbOpen("gallery", i, b)));
+  $$(".book").forEach((b) => b.addEventListener("click", () => lbOpen(b.dataset.book, 0, b)));
+  lb.addEventListener("cancel", (e) => { e.preventDefault(); lbClose(); });
   lb.addEventListener("click", (e) => {
     const act = e.target.closest("[data-lb]")?.dataset.lb;
-    if (act === "close" || e.target === lb) lb.close();
+    if (act === "close" || e.target === lb) lbClose();
     else if (act === "prev") lbShow(lbIndex - 1);
     else if (act === "next") lbShow(lbIndex + 1);
   });
@@ -379,239 +471,108 @@
     if (!touchStart) return;
     const dx = e.changedTouches[0].clientX - touchStart.x;
     const dy = e.changedTouches[0].clientY - touchStart.y;
-    /* poziomy gest = następna strona; pionowy zostaje przewijaniem karty */
+    /* poziomy gest = następne zdjęcie / strona; pionowy zostaje przewijaniem karty */
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) lbShow(lbIndex + (dx < 0 ? 1 : -1));
     touchStart = null;
   });
 
   /* ------------------------------------------------------------------ */
-  /* formularz rezerwacji → gotowa wiadomość e-mail                     */
+  /* formularz rezerwacji → gotowa wiadomość e-mail                      */
   /* ------------------------------------------------------------------ */
   const form = $("#reserveForm");
-  const dateInput = $("#f-date");
-  dateInput.min = ymd(new Date());
-  dateInput.value = ymd(new Date());
+  if (form) {
+    const today = ymd(new Date());
+    const dateInput = $("#f-date");
+    dateInput.min = today;
+    if (!dateInput.value) dateInput.value = today;
+    const status = $("#formStatus");
+    const submit = $('button[type="submit"]', form);
 
-  form.addEventListener("input", (e) => e.target.classList.remove("is-invalid"));
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const fields = $$("input[required]", form);
-    let ok = true;
-    fields.forEach((f) => {
-      const valid = f.checkValidity() && f.value.trim() !== "";
-      f.classList.toggle("is-invalid", !valid);
-      if (!valid) ok = false;
-    });
-    const err = $("#formError");
-    if (!ok) {
-      err.textContent = dyn("formInvalid");
-      err.hidden = false;
-      $(".is-invalid", form)?.focus();
-      return;
+    const checks = {
+      name: (v) => v.trim().length >= 2,
+      email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()),
+      phone: (v) => v.replace(/\D/g, "").length >= 9,
+      people: (v) => Number(v) >= 1 && Number(v) <= 40,
+      date: (v) => !!v && v >= today,
+      time: (v) => !!v,
+      consent: (_, input) => input.checked
+    };
+    function validate(input) {
+      const ok = checks[input.name](input.value, input);
+      const err = $(`#${input.id}-err`);
+      input.setAttribute("aria-invalid", String(!ok));
+      err.hidden = ok;
+      err.textContent = ok ? "" : T.errors[input.name];
+      return ok;
     }
-    err.hidden = true;
-    const d = Object.fromEntries(new FormData(form));
-    const labels = dyn("mailLines");
-    const values = [d.name, d.email, d.phone, d.people, d.date, d.time, d.notes || "–"];
-    const body = labels.map((l, i) => `${l}: ${values[i]}`).join("\n");
-    const subject = `${dyn("mailSubject")} – ${d.date} ${d.time}, ${d.people} os.`;
-    location.href = `mailto:${RESERVATION_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  });
-
-  $("#year").textContent = String(new Date().getFullYear());
-
-  /* druga kopia taśmy marquee — potrzebna do płynnej pętli (CSS i GSAP) */
-  $$(".marquee-row").forEach((row) => row.append($(".marquee-track", row).cloneNode(true)));
-
-  /* ------------------------------------------------------------------ */
-  /* animacje przewijania                                                */
-  /* ------------------------------------------------------------------ */
-  function initMotion() {
-    gsap.registerPlugin(ScrollTrigger);
-    root.classList.add("anim");
-
-    if (window.Lenis) {
-      lenis = new Lenis({ lerp: 0.1, wheelMultiplier: 0.9 });
-      lenis.on("scroll", ScrollTrigger.update);
-      gsap.ticker.add((t) => lenis.raf(t * 1000));
-      gsap.ticker.lagSmoothing(0);
-    }
-
-    /* pasek postępu */
-    gsap.to(".progress span", {
-      scaleX: 1, ease: "none",
-      scrollTrigger: { start: 0, end: "max", scrub: 0.3 }
+    const inputs = Object.keys(checks).map((n) => form.elements[n]);
+    inputs.forEach((i) => {
+      i.addEventListener("blur", () => { if (i.value || i.type === "checkbox") validate(i); });
+      i.addEventListener("input", () => { if (i.getAttribute("aria-invalid") === "true") validate(i); });
+      i.addEventListener("change", () => { if (i.getAttribute("aria-invalid") === "true") validate(i); });
     });
 
-    /* intro hero */
-    const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
-    intro
-      .from(".hero-img", { scale: 1.25, duration: 2.4, ease: "power2.out" }, 0)
-      .from(".hero-logo", { y: 40, opacity: 0, filter: "blur(12px)", duration: 1.4 }, 0.2)
-      .from(".hero-tagline", { y: 24, opacity: 0, duration: 1 }, 0.6)
-      .from(".genres span", { yPercent: 120, opacity: 0, rotateX: -70, stagger: 0.09, duration: 0.9 }, 0.8)
-      .from(".hero-actions .btn", { y: 20, opacity: 0, stagger: 0.1, duration: 0.8 }, 1.15)
-      .from(".hours > div", { y: 20, opacity: 0, stagger: 0.1, duration: 0.8 }, 1.3)
-      .from(".scroll-cue", { opacity: 0, duration: 1 }, 1.6);
-
-    /* hero przy przewijaniu */
-    gsap.to(".hero-img", {
-      yPercent: 14, scale: 1.08, ease: "none",
-      scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true }
-    });
-    gsap.fromTo(".hero-inner", { y: 0, opacity: 1 }, {
-      y: -120, opacity: 0, ease: "none", immediateRender: false,
-      scrollTrigger: { trigger: ".hero", start: "20% top", end: "bottom top", scrub: true }
-    });
-
-    /* marquee: stałe tempo, przyspiesza z prędkością przewijania i zmienia kierunek */
-    const rows = $$(".marquee-row").map((row) => ({ row, dir: Number(row.dataset.dir), x: Number(row.dataset.dir) > 0 ? 0 : -50 }));
-    let mqBoost = 1;
-    let mqSpeed = 1;
-    let mqDir = 1;
-    const mqTrigger = ScrollTrigger.create({
-      trigger: ".marquee", start: "top bottom", end: "bottom top",
-      onUpdate(self) {
-        mqDir = self.direction;
-        mqBoost = 1 + Math.min(Math.abs(self.getVelocity()) / 250, 6);
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      /* pole-pułapka: wypełniają je tylko boty */
+      if (form.elements.website.value) return;
+      const bad = inputs.filter((i) => !validate(i));
+      if (bad.length) {
+        status.className = "form-status form-status--error";
+        status.textContent = T.formInvalid;
+        status.hidden = false;
+        bad[0].focus();
+        return;
       }
+      const d = Object.fromEntries(new FormData(form));
+      const values = [d.name, d.email, d.phone, d.people, d.date, d.time, d.notes || "–"];
+      const body = T.mailLines.map((l, i) => `${l}: ${values[i]}`).join("\n");
+      const subject = `${T.mailSubject} – ${d.date} ${d.time}, ${d.people} ${T.people}`;
+      submit.disabled = true;
+      const label = submit.textContent;
+      submit.textContent = T.sending;
+      location.href = `mailto:${RESERVATION_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      setTimeout(() => {
+        submit.disabled = false;
+        submit.textContent = label;
+        status.className = "form-status";
+        status.innerHTML = T.sent;
+        status.hidden = false;
+      }, 900);
     });
-    gsap.ticker.add((_, dt) => {
-      if (!mqTrigger.isActive) return;
-      mqBoost += (1 - mqBoost) * 0.05;
-      mqSpeed += (mqDir * mqBoost - mqSpeed) * 0.1;
-      rows.forEach((r) => {
-        r.x -= r.dir * mqSpeed * dt * 0.0013;
-        if (r.x <= -50) r.x += 50;
-        else if (r.x > 0) r.x -= 50;
-        gsap.set(r.row, { xPercent: r.x });
-      });
-    });
-    gsap.fromTo(".marquee", { rotate: -4 }, {
-      rotate: 1.5, ease: "none",
-      scrollTrigger: { trigger: ".marquee", start: "top bottom", end: "bottom top", scrub: true }
-    });
-
-    /* tytuły — litery wchodzą jak klawisze */
-    $$(".title.split").forEach((t) => {
-      gsap.from($$(".char", t), {
-        yPercent: 110, opacity: 0, rotateX: -80, transformOrigin: "50% 100%",
-        stagger: 0.025, duration: 0.9, ease: "back.out(1.6)",
-        scrollTrigger: { trigger: t, start: "top 86%", once: true }
-      });
-    });
-
-    /* ogólne pojawianie się */
-    ScrollTrigger.batch(".reveal", {
-      start: "top 88%", once: true,
-      onEnter: (els) => gsap.to(els, { opacity: 1, y: 0, duration: 1, ease: "power3.out", stagger: 0.1, overwrite: true })
-    });
-
-    /* deklaracja „O nas” — słowa zapalają się podczas przewijania */
-    ScrollTrigger.create({
-      trigger: "#statement", start: "top 80%", end: "bottom 40%", scrub: true,
-      onUpdate: (self) => updateStatement(self.progress)
-    });
-
-    /* winyl kręci się z przewijaniem, ramię opada na płytę */
-    gsap.to(".vinyl", {
-      rotation: 900, ease: "none",
-      scrollTrigger: { trigger: ".about", start: "top bottom", end: "bottom top", scrub: 0.6 }
-    });
-    gsap.fromTo(".tonearm", { rotate: -32 }, {
-      rotate: 0, ease: "power2.out",
-      scrollTrigger: { trigger: ".about-vinyl", start: "top 80%", end: "top 35%", scrub: 1 }
-    });
-    gsap.from(".about-vinyl", {
-      xPercent: -30, opacity: 0, ease: "power3.out", duration: 1.4,
-      scrollTrigger: { trigger: ".about-vinyl", start: "top 85%", once: true }
-    });
-
-    /* paralaksa zdjęć */
-    $$("[data-speed]").forEach((fig) => {
-      const speed = Number(fig.dataset.speed);
-      gsap.to(fig, {
-        yPercent: speed * 100, ease: "none",
-        scrollTrigger: { trigger: fig, start: "top bottom", end: "bottom top", scrub: true }
-      });
-      gsap.to($("img", fig), {
-        scale: 1, ease: "none",
-        scrollTrigger: { trigger: fig, start: "top bottom", end: "bottom top", scrub: true }
-      });
-    });
-
-    /* liczniki */
-    $$("[data-count]").forEach((n) => {
-      const target = Number(n.dataset.count);
-      const from = n.hasAttribute("data-plain") ? 1900 : 0;
-      const obj = { v: from };
-      n.textContent = String(from);
-      gsap.to(obj, {
-        v: target, duration: 2, ease: "power2.out",
-        onUpdate: () => { n.textContent = String(Math.round(obj.v)); },
-        scrollTrigger: { trigger: n, start: "top 90%", once: true }
-      });
-    });
-
-    /* legendy — rzędy przesuwają się w przeciwnych kierunkach */
-    $$(".legend-row").forEach((row) => {
-      const dir = Number(row.dataset.dir);
-      gsap.to(row, {
-        x: () => dir * innerWidth * 0.35, ease: "none",
-        scrollTrigger: { trigger: ".legends", start: "top bottom", end: "bottom top", scrub: 0.5, invalidateOnRefresh: true }
-      });
-    });
-
-    /* galeria — przypięta, przewijana w poziomie (desktop) */
-    const mm = gsap.matchMedia();
-    mm.add("(min-width: 900px)", () => {
-      root.classList.add("pin-gallery");
-      const dist = () => Math.max(0, track.scrollWidth - innerWidth);
-      const tween = gsap.to(track, {
-        x: () => -dist(), ease: "none",
-        scrollTrigger: {
-          trigger: ".gallery-pin", start: "top top", end: () => `+=${dist()}`,
-          pin: true, scrub: 0.6, invalidateOnRefresh: true, anticipatePin: 1
-        }
-      });
-      $$(".shot img", track).forEach((img) => {
-        gsap.fromTo(img, { xPercent: -6 }, {
-          xPercent: 6, ease: "none",
-          scrollTrigger: { trigger: img.parentElement, containerAnimation: tween, start: "left right", end: "right left", scrub: true }
-        });
-      });
-      return () => root.classList.remove("pin-gallery");
-    });
-    mm.add("(max-width: 899px)", () => {
-      gsap.from(".shot", {
-        x: 80, opacity: 0, stagger: 0.06, duration: 0.9, ease: "power3.out",
-        scrollTrigger: { trigger: track, start: "top 85%", once: true }
-      });
-    });
-
-    /* mapa odsłania się jak kurtyna */
-    gsap.fromTo("#map", { clipPath: "inset(0 0 100% 0)" }, {
-      clipPath: "inset(0 0 0% 0)", duration: 1.4, ease: "power4.inOut",
-      scrollTrigger: { trigger: "#map", start: "top 80%", once: true }
-    });
-
-    /* logotypy partnerów */
-    gsap.from(".partners li", {
-      y: 30, opacity: 0, stagger: 0.06, duration: 0.8, ease: "power3.out",
-      scrollTrigger: { trigger: ".partners", start: "top 90%", once: true }
-    });
-
-    addEventListener("load", () => ScrollTrigger.refresh());
   }
 
   /* ------------------------------------------------------------------ */
-  /* start                                                              */
+  /* mapa Google dopiero po kliknięciu                                   */
   /* ------------------------------------------------------------------ */
-  let saved = null;
-  try { saved = localStorage.getItem("harris-lang"); } catch { /* prywatny tryb */ }
-  setLang(saved || ((navigator.language || "pl").toLowerCase().startsWith("pl") ? "pl" : "en"), true);
+  const map = $("#map");
+  $("#mapLoad")?.addEventListener("click", () => {
+    const f = el("iframe");
+    f.title = map.dataset.title;
+    f.src = map.dataset.src;
+    f.referrerPolicy = "no-referrer-when-downgrade";
+    f.allowFullscreen = true;
+    $(".map-facade", map).remove();
+    map.append(f);
+    map.classList.add("is-loaded");
+    f.focus();
+  });
 
-  root.classList.add("ready");
-  if (animate) initMotion();
+  /* ------------------------------------------------------------------ */
+  /* stały pasek „Zadzwoń / Rezerwuj” — chowa się przy hero i kontakcie  */
+  /* ------------------------------------------------------------------ */
+  const callbar = $("#callbar");
+  if (callbar) {
+    const hideOver = $$("[data-hide-callbar]");
+    const seen = new Set();
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => (en.isIntersecting ? seen.add(en.target) : seen.delete(en.target)));
+      callbar.classList.toggle("is-hidden", seen.size > 0);
+    }, { threshold: 0.15 });
+    hideOver.forEach((n) => io.observe(n));
+  }
+
+  $$("[data-year]").forEach((n) => { n.textContent = String(new Date().getFullYear()); });
+
   loadEvents();
 })();
