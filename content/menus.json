@@ -1,0 +1,168 @@
+[
+  {
+    "id": "karta",
+    "title": {
+      "pl": "Karta",
+      "en": "Food & drinks"
+    },
+    "subtitle": {
+      "pl": "Kuchnia i bar",
+      "en": "Kitchen and bar"
+    },
+    "cover": {
+      "src": "/assets/img/menu/karta-menu-harris-krakow-okladka.webp",
+      "width": 600,
+      "height": 848
+    },
+    "pages": [
+      {
+        "src": "/assets/img/menu/karta-menu-harris-krakow-01.webp",
+        "width": 1400,
+        "height": 1979
+      },
+      {
+        "src": "/assets/img/menu/karta-menu-harris-krakow-02.webp",
+        "width": 1400,
+        "height": 1979
+      },
+      {
+        "src": "/assets/img/menu/karta-menu-harris-krakow-03.webp",
+        "width": 1400,
+        "height": 1979
+      },
+      {
+        "src": "/assets/img/menu/karta-menu-harris-krakow-04.webp",
+        "width": 1400,
+        "height": 1979
+      },
+      {
+        "src": "/assets/img/menu/karta-menu-harris-krakow-05.webp",
+        "width": 1400,
+        "height": 1979
+      },
+      {
+        "src": "/assets/img/menu/karta-menu-harris-krakow-06.webp",
+        "width": 1400,
+        "height": 1979
+      },
+      {
+        "src": "/assets/img/menu/karta-menu-harris-krakow-07.webp",
+        "width": 1400,
+        "height": 1979
+      },
+      {
+        "src": "/assets/img/menu/karta-menu-harris-krakow-08.webp",
+        "width": 1400,
+        "height": 1979
+      },
+      {
+        "src": "/assets/img/menu/karta-menu-harris-krakow-09.webp",
+        "width": 1400,
+        "height": 1979
+      },
+      {
+        "src": "/assets/img/menu/karta-menu-harris-krakow-10.webp",
+        "width": 1400,
+        "height": 1979
+      },
+      {
+        "src": "/assets/img/menu/karta-menu-harris-krakow-11.webp",
+        "width": 1400,
+        "height": 1970
+      }
+    ]
+  },
+  {
+    "id": "wino",
+    "title": {
+      "pl": "Karta win",
+      "en": "Wine list"
+    },
+    "subtitle": {
+      "pl": "Wina musujące, białe i czerwone",
+      "en": "Sparkling, white and red wines"
+    },
+    "cover": {
+      "src": "/assets/img/menu/karta-win-harris-krakow-okladka.webp",
+      "width": 600,
+      "height": 1059
+    },
+    "pages": [
+      {
+        "src": "/assets/img/menu/karta-win-harris-krakow-01.webp",
+        "width": 1400,
+        "height": 2470
+      },
+      {
+        "src": "/assets/img/menu/karta-win-harris-krakow-02.webp",
+        "width": 1400,
+        "height": 2471
+      },
+      {
+        "src": "/assets/img/menu/karta-win-harris-krakow-03.webp",
+        "width": 1400,
+        "height": 2471
+      },
+      {
+        "src": "/assets/img/menu/karta-win-harris-krakow-04.webp",
+        "width": 1400,
+        "height": 2469
+      },
+      {
+        "src": "/assets/img/menu/karta-win-harris-krakow-05.webp",
+        "width": 1400,
+        "height": 2469
+      },
+      {
+        "src": "/assets/img/menu/karta-win-harris-krakow-06.webp",
+        "width": 1400,
+        "height": 2471
+      },
+      {
+        "src": "/assets/img/menu/karta-win-harris-krakow-07.webp",
+        "width": 1400,
+        "height": 2471
+      },
+      {
+        "src": "/assets/img/menu/karta-win-harris-krakow-08.webp",
+        "width": 1400,
+        "height": 2471
+      },
+      {
+        "src": "/assets/img/menu/karta-win-harris-krakow-09.webp",
+        "width": 1400,
+        "height": 2469
+      },
+      {
+        "src": "/assets/img/menu/karta-win-harris-krakow-10.webp",
+        "width": 1400,
+        "height": 2469
+      },
+      {
+        "src": "/assets/img/menu/karta-win-harris-krakow-11.webp",
+        "width": 1400,
+        "height": 2469
+      },
+      {
+        "src": "/assets/img/menu/karta-win-harris-krakow-12.webp",
+        "width": 1400,
+        "height": 2469
+      },
+      {
+        "src": "/assets/img/menu/karta-win-harris-krakow-13.webp",
+        "width": 1400,
+        "height": 2469
+      },
+      {
+        "src": "/assets/img/menu/karta-win-harris-krakow-14.webp",
+        "width": 1400,
+        "height": 2469
+      },
+      {
+        "src": "/assets/img/menu/karta-win-harris-krakow-15.webp",
+        "width": 1400,
+        "height": 2470
+      }
+    ]
+  }
+]

@@ -1,0 +1,129 @@
+{
+  "seo": {
+    "title": {
+      "pl": "Klub jazzowy Kraków, muzyka na żywo | Harris Piano Jazz Bar",
+      "en": "Jazz club in Kraków, live music | Harris Piano Jazz Bar"
+    },
+    "description": {
+      "pl": "Harris Piano Jazz Bar na Rynku Głównym 28 w Krakowie. Od 1997 r. codziennie koncerty na żywo: jazz, blues, funk i soul. Sprawdź program i zarezerwuj stolik.",
+      "en": "Harris Piano Jazz Bar on Kraków's Main Square (Rynek Główny 28). Live jazz, blues, funk and soul every night since 1997. See the programme and book a table."
+    },
+    "ogImageAlt": {
+      "pl": "Kwartet jazzowy na scenie Harris Piano Jazz Bar w Krakowie, przed nim publiczność; na dole logo klubu",
+      "en": "Jazz quartet on the Harris Piano Jazz Bar stage in Kraków with the audience in front; club logo at the bottom"
+    },
+    "concertsTitle": {
+      "pl": "Program koncertów w Krakowie | Harris Piano Jazz Bar",
+      "en": "Concert programme in Kraków | Harris Piano Jazz Bar"
+    },
+    "concertsDescription": {
+      "pl": "Program koncertów na żywo w Harris Piano Jazz Bar, Rynek Główny 28 w Krakowie: jazz, blues, funk, soul i jam sessions. Ceny biletów i godziny.",
+      "en": "Live concert programme at Harris Piano Jazz Bar, Rynek Główny 28, Kraków: jazz, blues, funk, soul and jam sessions. Ticket prices and times."
+    }
+  },
+  "hero": {
+    "image": "zespol-jazzowy-i-publicznosc-harris-krakow",
+    "kicker": { "pl": "Klub jazzowy w Krakowie", "en": "Jazz club in Kraków" },
+    "tagline": { "pl": "Codziennie muzyka na żywo!", "en": "Live music every night!" },
+    "genres": ["Jazz", "Blues", "Funk", "Soul", "Hip-Hop"],
+    "ctaPrimary": { "pl": "Zarezerwuj stolik", "en": "Book a table" },
+    "ctaSecondary": { "pl": "Jak do nas trafić", "en": "How to find us" }
+  },
+  "marquee": {
+    "row1": ["Jazz", "Blues", "Funk", "Soul", "Hip-Hop", "Jam Session", "Swing", "Fusion", "Latin"],
+    "row2": {
+      "pl": ["Rynek Główny 28", "Kraków", "od 1997", "Live every night"],
+      "en": ["Rynek Główny 28", "Kraków", "since 1997", "Live every night"]
+    }
+  },
+  "concerts": {
+    "kicker": { "pl": "Program · Rynek Główny 28, Kraków", "en": "Programme · Rynek Główny 28, Kraków" },
+    "title": { "pl": "Koncerty na żywo", "en": "Live concerts" },
+    "lead": {
+      "pl": "Koncerty zaczynamy zwykle o 21:30. Przyjdź wcześniej – najlepsze miejsca znikają szybko.",
+      "en": "Concerts usually start at 9:30 pm. Come early – the best seats go fast."
+    },
+    "pageTitle": { "pl": "Program koncertów", "en": "Concert programme" },
+    "pageLead": {
+      "pl": "Wszystkie zaplanowane koncerty w Harris Piano Jazz Bar. Bilety kupisz na miejscu; stolik najlepiej zarezerwować wcześniej.",
+      "en": "All upcoming concerts at Harris Piano Jazz Bar. Tickets are sold at the door; it is best to book a table in advance."
+    }
+  },
+  "about": {
+    "kicker": { "pl": "O nas · od stycznia 1997", "en": "About us · since January 1997" },
+    "title": { "pl": "Klub jazzowy w sercu Krakowa", "en": "A jazz club in the heart of Kraków" },
+    "statement": {
+      "pl": "Drugi w Europie i *jedyny* taki w *Polsce* klub, w którym *codziennie* odbywają się koncerty autorskiej muzyki jazzowej.",
+      "en": "The second club of its kind in Europe and the *only* one in *Poland* where original jazz is played live *every* single night."
+    },
+    "paragraphs": [
+      {
+        "pl": "Marzenie o miejscu z doskonałą muzyką, świetną obsługą, przyjaznymi, niezwykłymi ludźmi i klimatycznym wnętrzem – Harris łączy to wszystko z naturalną lekkością. Rynek Główny 28, w samym sercu Starego Miasta, na stałe wpisał się w klubowy kalendarz Krakowa.",
+        "en": "A place with great music, great service, friendly, remarkable people and an atmospheric interior – Harris brings it all together with natural ease. Rynek Główny 28, right in the heart of the Old Town, has long been a fixture of Kraków's club calendar."
+      },
+      {
+        "pl": "Gramy szeroko rozumiany jazz – od klasyki, przez wszelkie mieszanki, po progres. Nie zamykamy się na muzykę inną, poszukującą, ale zawsze dobrą. Do tego dobry drink, aromatyczne piwo albo coś mocniejszego.",
+        "en": "We play jazz in the broadest sense – from the classics, through every kind of blend, to progressive. We are open to other music too, exploratory but always good. Add a fine drink, a flavourful beer or something stronger."
+      },
+      {
+        "pl": "U nas goście są blisko muzyków – a podczas jam sessions często sami wchodzą na scenę. Jazz, fusion, latin, funk i soul: przynieś instrument albo po prostu słuchaj.",
+        "en": "Guests here are close to the musicians – and during jam sessions they often step on stage themselves. Jazz, fusion, latin, funk and soul: bring your instrument or simply listen."
+      }
+    ],
+    "photoA": "bar-harris-piano-jazz-bar-krakow",
+    "photoB": "publicznosc-na-koncercie-harris-krakow"
+  },
+  "stats": [
+    { "value": { "pl": "1997", "en": "1997" }, "animate": true, "label": { "pl": "rok otwarcia klubu", "en": "the year we opened" }, "term": { "pl": "Rok otwarcia", "en": "Opened" } },
+    { "value": { "pl": "7/7", "en": "7/7" }, "animate": true, "label": { "pl": "dni w tygodniu z muzyką na żywo", "en": "days a week of live music" }, "term": { "pl": "Koncerty w tygodniu", "en": "Concerts per week" } },
+    { "value": { "pl": "4000+", "en": "4000+" }, "animate": true, "label": { "pl": "koncertów w naszym kalendarzu online", "en": "concerts in our online calendar" }, "term": { "pl": "Koncerty w kalendarzu", "en": "Concerts in our calendar" } },
+    { "value": { "pl": "21:30", "en": "9:30 pm" }, "animate": false, "label": { "pl": "o tej godzinie zwykle zaczyna się koncert", "en": "when the concert usually starts" }, "term": { "pl": "Start koncertów", "en": "Concert start" } }
+  ],
+  "legends": {
+    "kicker": { "pl": "Na naszej scenie", "en": "On our stage" },
+    "title": { "pl": "Grali u nas", "en": "They played here" },
+    "foot": {
+      "pl": "…i setki muzyków, którzy swoim talentem i energią sprawili, że Harris jest miejscem niezwykłym.",
+      "en": "…and hundreds of musicians whose talent and energy made Harris a truly special place."
+    }
+  },
+  "gallery": {
+    "kicker": { "pl": "Galeria", "en": "Gallery" },
+    "title": { "pl": "Wieczory, których się nie powtarza", "en": "Nights that never repeat" }
+  },
+  "menu": {
+    "kicker": { "pl": "Kuchnia · Bar · Wino", "en": "Kitchen · Bar · Wine" },
+    "title": { "pl": "Menu i karta win", "en": "Menu and wine list" },
+    "lead": {
+      "pl": "Przystawki, panini, pizza i makarony, klasyczne koktajle, Harris Spritz, piwo z beczki i karta win – do muzyki, do rozmowy, do późna.",
+      "en": "Starters, panini, pizza and pasta, classic cocktails, Harris Spritz, draught beer and a wine list – for the music, for the talk, till late."
+    }
+  },
+  "faq": {
+    "kicker": { "pl": "Zanim przyjdziesz", "en": "Before you come" },
+    "title": { "pl": "Pytania o koncerty i rezerwacje", "en": "Questions about concerts and bookings" }
+  },
+  "reservation": {
+    "kicker": { "pl": "Telefonicznie lub mailowo", "en": "By phone or e-mail" },
+    "title": { "pl": "Rezerwacja stolika", "en": "Book a table" },
+    "notes": [
+      { "pl": "Rezerwacje – mailowe i telefoniczne – przyjmujemy do godziny 20:00.", "en": "Reservations – by e-mail and by phone – are accepted until 8 pm." },
+      { "pl": "Prosimy o niedokonywanie podwójnych rezerwacji (online i telefonicznie).", "en": "Please do not make double reservations (online and by phone)." },
+      { "pl": "Liczba miejsc jest ograniczona – na specjalne koncerty warto pisać z wyprzedzeniem.", "en": "Seating is limited – for special concerts, write well in advance." }
+    ]
+  },
+  "find": {
+    "kicker": { "pl": "Stare Miasto, Kraków", "en": "Old Town, Kraków" },
+    "title": { "pl": "Znajdź nas", "en": "Find us" },
+    "mapNote": {
+      "pl": "Rynek Główny 28, 31-010 Kraków – w samym sercu Starego Miasta.",
+      "en": "Rynek Główny 28, 31-010 Kraków – right in the heart of the Old Town."
+    }
+  },
+  "footer": {
+    "area": {
+      "pl": "Klub jazzowy z muzyką na żywo na Starym Mieście w Krakowie",
+      "en": "Jazz club with live music in Kraków's Old Town"
+    }
+  }
+}

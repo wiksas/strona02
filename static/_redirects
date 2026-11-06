@@ -1,0 +1,16 @@
+# Przekierowania 301 ze starej strony WordPress (Netlify / Cloudflare Pages).
+# GitHub Pages tego pliku nie obsługuje — tam nowe adresy działają, a stare trzeba przekierować po stronie DNS/hostingu.
+/pl/*                /:splat            301
+/koncert/:slug/      /koncerty/:slug/   301
+/koncert/:slug       /koncerty/:slug/   301
+/en/koncert/:slug/   /en/concerts/:slug/ 301
+/en/koncert/:slug    /en/concerts/:slug/ 301
+/kalendarz/*         /koncerty/         301
+/en/kalendarz/*      /en/concerts/      301
+/o-nas/              /#o-nas            301
+/galeria/            /#galeria          301
+/menu/               /#menu             301
+/rezerwacja/         /#rezerwacja       301
+/znajdz-nas/         /#znajdz-nas       301
+/kontakt/            /#znajdz-nas       301
+/harris-online/      /                  301
