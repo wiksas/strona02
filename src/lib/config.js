@@ -7,7 +7,7 @@ export const SITE_URL = 'https://harris.krakow.pl';
 export const REPO = { owner: 'wiksas', name: 'strona02', branch: 'main' };
 
 /** Wersja CSS/JS w adresach (?v=…) — podbij po każdej zmianie plików w static/assets/css lub js. */
-export const ASSET_VERSION = '20261106-4';
+export const ASSET_VERSION = '20261107-1';
 
 /** Pliki treści edytowane w panelu (ścieżki w repozytorium). */
 export const CONTENT_FILES = {

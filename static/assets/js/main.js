@@ -173,6 +173,17 @@
     root.classList.add("reveal-on");
     $$(".reveal").forEach((n) => onEnter(n, (t) => t.classList.add("is-in")));
 
+    /* animacje ciągłe działają tylko wtedy, gdy ich element jest na ekranie */
+    const vinyl = $(".about-vinyl");
+    if (vinyl) vinyl.classList.add("is-ready");
+    const live = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (en.target === vinyl) en.target.classList.toggle("is-on", en.isIntersecting);
+        else en.target.classList.toggle("is-off", !en.isIntersecting);
+      });
+    }, { rootMargin: "100px 0px" });
+    [$(".hero"), $(".marquee"), vinyl].forEach((n) => n && live.observe(n));
+
     const st = $("#statement");
     if (st) {
       const words = st.textContent.trim().split(/\s+/);
