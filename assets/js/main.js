@@ -40,8 +40,10 @@
       empty: "Program na najbliższe dni pojawi się wkrótce – zajrzyj do pełnego kalendarza.",
       menuOpen: "Otwórz menu",
       menuClose: "Zamknij menu",
-      photo: "Zdjęcie",
       page: "Strona",
+      scrollHint: "przewiń w dół",
+      prevPage: "Poprzednia strona",
+      nextPage: "Następna strona",
       errors: {
         name: "Podaj imię i nazwisko.",
         email: "Podaj poprawny adres e-mail, np. jan@example.com.",
@@ -68,8 +70,10 @@
       empty: "The programme for the coming days will appear soon – check the full calendar.",
       menuOpen: "Open menu",
       menuClose: "Close menu",
-      photo: "Photo",
       page: "Page",
+      scrollHint: "scroll down",
+      prevPage: "Previous page",
+      nextPage: "Next page",
       errors: {
         name: "Please enter your full name.",
         email: "Please enter a valid e-mail address, e.g. jan@example.com.",
@@ -419,36 +423,97 @@
   /* ------------------------------------------------------------------ */
   /* podgląd pełnoekranowy: galeria i karty menu                         */
   /* ------------------------------------------------------------------ */
-  const pages = (prefix, n) => Array.from({ length: n }, (_, i) => ({
+  /* karty menu: wszystkie strony jedna pod drugą — czyta się je przewijając w dół jak dokument */
+  const MENU_PAGE = { w: 1400, karta: 1979, wino: 2470 };
+  const pages = (prefix, n, h) => Array.from({ length: n }, (_, i) => ({
     src: asset(`assets/img/menu/${prefix}-harris-krakow-${String(i + 1).padStart(2, "0")}.webp`),
-    alt: `${T.page} ${i + 1}`
+    alt: `${T.page} ${i + 1}`,
+    w: MENU_PAGE.w,
+    h
   }));
   const LB_SETS = {
     gallery: shots.map((b) => ({ src: b.dataset.full, alt: $("img", b).alt })),
-    karta: pages("karta-menu", 11),
-    wino: pages("karta-win", 15)
+    karta: pages("karta-menu", 11, MENU_PAGE.karta),
+    wino: pages("karta-win", 15, MENU_PAGE.wino)
   };
   const lb = $("#lightbox");
   const lbImg = $("#lbImg");
+  const lbPages = $("#lbPages");
+  const lbCount = $("#lbCount");
+  const lbPrev = $(".lb-prev", lb);
+  const lbNext = $(".lb-next", lb);
+  const navLabels = { prev: lbPrev.getAttribute("aria-label"), next: lbNext.getAttribute("aria-label") };
   let lbSet = LB_SETS.gallery;
   let lbIndex = 0;
+  let docMode = false;
   let opener = null;
   let lbActive = false;
 
+  function setCount() {
+    const n = `${lbIndex + 1} / ${lbSet.length}`;
+    lbCount.textContent = docMode ? `${T.page} ${n}${lbIndex === 0 ? ` · ${T.scrollHint} ↓` : ""}` : n;
+    if (docMode) {
+      lbPrev.disabled = lbIndex === 0;
+      lbNext.disabled = lbIndex === lbSet.length - 1;
+    }
+  }
+  function pageTop(i) {
+    return lbPages.children[i].getBoundingClientRect().top - lb.getBoundingClientRect().top + lb.scrollTop - 16;
+  }
   function lbShow(i) {
+    if (docMode) {
+      /* strzałki w karcie: przejście do poprzedniej / następnej strony (bez zawijania) */
+      const target = Math.max(0, Math.min(lbSet.length - 1, i));
+      lb.scrollTo({ top: target === 0 ? 0 : pageTop(target), behavior: reduceMotion ? "auto" : "smooth" });
+      return;
+    }
     lbIndex = (i + lbSet.length) % lbSet.length;
     lbImg.src = lbSet[lbIndex].src;
     lbImg.alt = lbSet[lbIndex].alt;
-    $("#lbCount").textContent = `${lbIndex + 1} / ${lbSet.length}`;
-    lb.scrollTop = 0;
+    setCount();
     new Image().src = lbSet[(lbIndex + 1) % lbSet.length].src;
   }
+  /* licznik stron nadąża za przewijaniem karty */
+  let countRaf = 0;
+  lb.addEventListener("scroll", () => {
+    if (!docMode || countRaf) return;
+    countRaf = requestAnimationFrame(() => {
+      countRaf = 0;
+      const line = lb.getBoundingClientRect().top + lb.clientHeight * 0.4;
+      let i = 0;
+      [...lbPages.children].forEach((img, k) => { if (img.getBoundingClientRect().top <= line) i = k; });
+      if (i !== lbIndex) { lbIndex = i; setCount(); }
+    });
+  }, { passive: true });
+
   function lbOpen(setName, i, from) {
     opener = from;
     lbSet = LB_SETS[setName];
-    lb.classList.toggle("lightbox--doc", setName !== "gallery");
-    lbShow(i);
+    docMode = setName !== "gallery";
+    lb.classList.toggle("lightbox--doc", docMode);
+    lbPrev.textContent = docMode ? "↑" : "‹";
+    lbNext.textContent = docMode ? "↓" : "›";
+    lbPrev.setAttribute("aria-label", docMode ? T.prevPage : navLabels.prev);
+    lbNext.setAttribute("aria-label", docMode ? T.nextPage : navLabels.next);
+    lbPrev.disabled = false;
+    lbNext.disabled = false;
+    lbPages.textContent = "";
+    if (docMode) {
+      lbImg.removeAttribute("src");
+      lbSet.forEach((p, k) => {
+        const img = el("img");
+        img.src = p.src; img.alt = p.alt; img.width = p.w; img.height = p.h;
+        img.decoding = "async";
+        img.loading = k < 2 ? "eager" : "lazy";
+        lbPages.append(img);
+      });
+      lbIndex = 0;
+      setCount();
+    } else {
+      lbShow(i);
+    }
     lb.showModal();
+    lb.scrollTop = 0;
     lbActive = true;
     root.classList.add("no-scroll");
     pushOverlay((h) => lbClose(h));
@@ -473,6 +538,7 @@
     else if (act === "next") lbShow(lbIndex + 1);
   });
   lb.addEventListener("keydown", (e) => {
+    /* w karcie strzałki góra/dół i PageUp/PageDown przewijają natywnie; lewo/prawo skacze o stronę */
     if (e.key === "ArrowLeft") lbShow(lbIndex - 1);
     if (e.key === "ArrowRight") lbShow(lbIndex + 1);
   });
@@ -482,7 +548,7 @@
     if (!touchStart) return;
     const dx = e.changedTouches[0].clientX - touchStart.x;
     const dy = e.changedTouches[0].clientY - touchStart.y;
-    /* poziomy gest = następne zdjęcie / strona; pionowy zostaje przewijaniem karty */
+    /* poziomy gest = następne zdjęcie / strona; pionowy zostaje zwykłym przewijaniem karty */
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) lbShow(lbIndex + (dx < 0 ? 1 : -1));
     touchStart = null;
   });
