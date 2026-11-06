@@ -186,6 +186,11 @@
   addEventListener("keydown", (e) => {
     if (e.key === "Escape" && nav.classList.contains("is-open")) { setMenu(false); burger.focus(); }
   });
+  /* menu otwarte na tablecie, a potem okno szersze (obrót, zmiana rozmiaru): przycisk menu znika,
+     więc zamykamy menu sami — inaczej blokada przewijania zostałaby na stałe */
+  matchMedia("(max-width: 1100px)").addEventListener("change", (e) => {
+    if (!e.matches && nav.classList.contains("is-open")) setMenu(false);
+  });
 
   const navLinks = $$(".nav a");
   const spy = new IntersectionObserver((entries) => {
@@ -428,6 +433,7 @@
   let lbSet = LB_SETS.gallery;
   let lbIndex = 0;
   let opener = null;
+  let lbActive = false;
 
   function lbShow(i) {
     lbIndex = (i + lbSet.length) % lbSet.length;
@@ -443,10 +449,14 @@
     lb.classList.toggle("lightbox--doc", setName !== "gallery");
     lbShow(i);
     lb.showModal();
+    lbActive = true;
     root.classList.add("no-scroll");
     pushOverlay((h) => lbClose(h));
   }
+  /* jedno miejsce sprzątania — wołane też, gdy podgląd zamknie sama przeglądarka (np. gest „wstecz” na Androidzie) */
   function lbClose(fromHistory = false) {
+    if (!lbActive) return;
+    lbActive = false;
     if (lb.open) lb.close();
     root.classList.remove("no-scroll");
     if (!fromHistory) popOverlay();
@@ -455,6 +465,7 @@
   shots.forEach((b, i) => b.addEventListener("click", () => lbOpen("gallery", i, b)));
   $$(".book").forEach((b) => b.addEventListener("click", () => lbOpen(b.dataset.book, 0, b)));
   lb.addEventListener("cancel", (e) => { e.preventDefault(); lbClose(); });
+  lb.addEventListener("close", () => lbClose());
   lb.addEventListener("click", (e) => {
     const act = e.target.closest("[data-lb]")?.dataset.lb;
     if (act === "close" || e.target === lb) lbClose();
