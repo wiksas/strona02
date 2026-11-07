@@ -31,15 +31,14 @@
 
   const T = {
     pl: {
-      today: "Dziś wieczorem",
+      today: "Dziś",
       tonight: "Dziś wieczorem gramy",
       next: "Wkrótce na scenie",
-      details: "Szczegóły",
       currency: "zł",
-      offline: "Nie udało się pobrać aktualnego programu – pokazujemy ostatnio zapisany. Pełny program jest w kalendarzu.",
-      empty: "Program na najbliższe dni pojawi się wkrótce – zajrzyj do pełnego kalendarza.",
-      menuOpen: "Otwórz menu",
-      menuClose: "Zamknij menu",
+      offline: "Nie udało się pobrać aktualnego programu, więc pokazujemy ostatnio zapisany. Pełny program jest w kalendarzu klubu.",
+      empty: "Program na najbliższe dni pojawi się wkrótce. Zajrzyj do pełnego kalendarza koncertów.",
+      vinylPause: "Zatrzymaj płytę",
+      vinylPlay: "Puść płytę",
       page: "Strona",
       scrollHint: "przewiń w dół",
       prevPage: "Poprzednia strona",
@@ -49,27 +48,27 @@
         email: "Podaj poprawny adres e-mail, np. jan@example.com.",
         phone: "Podaj numer telefonu (co najmniej 9 cyfr).",
         people: "Podaj liczbę osób od 1 do 40.",
-        date: "Wybierz datę – dziś lub późniejszą.",
+        date: "Wybierz dzisiejszą lub późniejszą datę.",
         time: "Wybierz godzinę.",
         consent: "Zaznacz zgodę, abyśmy mogli obsłużyć rezerwację."
       },
-      formInvalid: "Popraw zaznaczone pola – opis błędu jest pod każdym z nich.",
+      formInvalid: "Popraw zaznaczone pola. Opis błędu jest pod każdym z nich.",
       sending: "Otwieram pocztę…",
-      sent: `Otworzyliśmy Twój program pocztowy z gotową wiadomością – wystarczy ją wysłać. Jeśli nic się nie otworzyło, zadzwoń: <a href="tel:+48124215741">${PHONE}</a> lub napisz na <a href="mailto:${RESERVATION_EMAIL}">${RESERVATION_EMAIL}</a>.`,
+      sent: `Otworzyliśmy Twój program pocztowy z gotową wiadomością, wystarczy ją wysłać. Jeśli nic się nie otworzyło, zadzwoń: <a href="tel:+48124215741">${PHONE}</a> lub napisz na <a href="mailto:${RESERVATION_EMAIL}">${RESERVATION_EMAIL}</a>.`,
       mailSubject: "Rezerwacja stolika",
       people: "os.",
+      none: "brak",
       mailLines: ["Imię i nazwisko", "E-mail", "Telefon", "Liczba osób", "Data", "Godzina", "Dodatkowe informacje"]
     },
     en: {
       today: "Tonight",
       tonight: "Tonight we play",
       next: "Coming up on stage",
-      details: "Details",
       currency: "PLN",
-      offline: "Could not load the live programme – showing the last saved one. See the full calendar for details.",
-      empty: "The programme for the coming days will appear soon – check the full calendar.",
-      menuOpen: "Open menu",
-      menuClose: "Close menu",
+      offline: "Could not load the live programme, so this is the last saved one. The full programme is in the club calendar.",
+      empty: "The programme for the coming days will appear soon. Check the full concert calendar.",
+      vinylPause: "Stop the record",
+      vinylPlay: "Play the record",
       page: "Page",
       scrollHint: "scroll down",
       prevPage: "Previous page",
@@ -83,11 +82,12 @@
         time: "Please choose a time.",
         consent: "Please tick the consent box so we can handle your booking."
       },
-      formInvalid: "Please correct the marked fields – each one says what is missing.",
+      formInvalid: "Please correct the marked fields. Each one says what is missing.",
       sending: "Opening your e-mail…",
-      sent: `Your e-mail app has opened with a ready-made message – just send it. If nothing opened, call <a href="tel:+48124215741">+48 ${PHONE}</a> or write to <a href="mailto:${RESERVATION_EMAIL}">${RESERVATION_EMAIL}</a>.`,
+      sent: `Your e-mail app has opened with a ready-made message, just send it. If nothing opened, call <a href="tel:+48124215741">+48 ${PHONE}</a> or write to <a href="mailto:${RESERVATION_EMAIL}">${RESERVATION_EMAIL}</a>.`,
       mailSubject: "Table reservation",
       people: "guests",
+      none: "none",
       mailLines: ["Name", "E-mail", "Phone", "Guests", "Date", "Time", "Additional information"]
     }
   }[lang];
@@ -109,7 +109,8 @@
   /* ------------------------------------------------------------------ */
   const decoder = document.createElement("textarea");
   const decode = (s) => { decoder.innerHTML = s; return decoder.value; };
-  const stripHtml = (s) => decode(String(s).replace(/<[^>]*>/g, " ")).replace(/\\n/g, " ").replace(/\s+/g, " ").trim();
+  /* skład zespołu przychodzi jako linie rozdzielone <br>: zamieniamy je na „·”, żeby nazwiska się nie zlewały */
+  const stripHtml = (s) => decode(String(s).replace(/<br\s*\/?>/gi, " · ").replace(/<[^>]*>/g, " ")).replace(/\\n/g, " ").replace(/\s+/g, " ").trim();
   const ymd = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
   function el(tag, cls, text) {
@@ -118,19 +119,6 @@
     if (text != null) n.textContent = text;
     return n;
   }
-
-  /* jeden obserwator „wejścia na ekran” dla wszystkich jednorazowych efektów */
-  const onEnter = (() => {
-    const handlers = new WeakMap();
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((en) => {
-        if (!en.isIntersecting) return;
-        io.unobserve(en.target);
-        handlers.get(en.target)?.(en.target);
-      });
-    }, { rootMargin: "0px 0px -12% 0px" });
-    return (node, fn) => { handlers.set(node, fn); io.observe(node); };
-  })();
 
   /* „wstecz” na telefonie zamyka menu i podgląd: każdy z nich dokłada wpis do historii */
   const overlays = [];
@@ -169,7 +157,6 @@
     if (open === nav.classList.contains("is-open")) return;
     nav.classList.toggle("is-open", open);
     burger.setAttribute("aria-expanded", String(open));
-    $(".sr", burger).textContent = open ? T.menuClose : T.menuOpen;
     root.classList.toggle("menu-open", open);
     root.classList.toggle("no-scroll", open);
     if (open) { pushOverlay((h) => setMenu(false, h)); $("a", nav).focus(); }
@@ -210,39 +197,20 @@
   $$("main > section[id]").forEach((s) => spy.observe(s));
 
   /* ------------------------------------------------------------------ */
-  /* pojawianie się treści, zdanie „O nas”, liczniki                     */
+  /* gramofon: płyta kręci się tylko na ekranie; przycisk ją zatrzymuje  */
   /* ------------------------------------------------------------------ */
-  if (!reduceMotion) {
-    root.classList.add("reveal-on");
-    $$(".reveal").forEach((n) => onEnter(n, (t) => t.classList.add("is-in")));
-
-    const st = $("#statement");
-    if (st) {
-      const words = st.textContent.trim().split(/\s+/);
-      const hl = new Set($$(".hl", st).map((n) => n.textContent.trim()));
-      st.textContent = "";
-      words.forEach((w, i) => {
-        const s = el("span", hl.has(w.replace(/[.,]/g, "")) ? "w hl" : "w", w);
-        s.style.setProperty("--i", i);
-        st.append(s, i < words.length - 1 ? " " : "");
-      });
-      st.classList.add("is-split");
-      onEnter(st, (t) => t.classList.add("is-in"));
-    }
-
-    $$("[data-count]").forEach((n) => {
-      const target = Number(n.dataset.count);
-      const from = n.hasAttribute("data-plain") ? 1900 : 0;
-      onEnter(n, () => {
-        const t0 = performance.now();
-        const step = (t) => {
-          const p = Math.min((t - t0) / 1400, 1);
-          n.textContent = String(Math.round(from + (target - from) * (1 - Math.pow(1 - p, 3))));
-          if (p < 1) requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
-      });
-    });
+  const deck = $("#turntable");
+  if (deck) {
+    const toggle = $("#turntableToggle");
+    const setPlaying = (on) => {
+      deck.classList.toggle("is-playing", on);
+      toggle.textContent = on ? T.vinylPause : T.vinylPlay;
+    };
+    /* przy ograniczonym ruchu płyta stoi, dopóki ktoś sam jej nie puści */
+    setPlaying(!reduceMotion);
+    toggle.hidden = false;
+    toggle.addEventListener("click", () => setPlaying(!deck.classList.contains("is-playing")));
+    new IntersectionObserver(([en]) => deck.classList.toggle("is-visible", en.isIntersecting), { threshold: 0.3 }).observe(deck);
   }
 
   /* ------------------------------------------------------------------ */
@@ -323,38 +291,33 @@
     eventsList.removeAttribute("aria-busy");
 
     if (!list.length) {
-      eventsList.append(el("li", "events-empty", T.empty));
+      eventsList.append(el("li", "gigs-empty", T.empty));
       $("#tonight").classList.add("is-empty");
       return;
     }
 
     list.forEach((e) => {
       const { date, ymd: day, time } = parseStart(e.start);
-      const li = el("li", day === today ? "event event--today" : "event");
-      if (day === today) li.append(el("span", "event-stamp", T.today));
-      const dateBox = el("div", "event-date");
-      const timeEl = el("time");
-      timeEl.dateTime = `${day}T${time}`;
-      timeEl.append(
-        el("span", "event-day", String(date.getDate())),
-        el("span", "event-month", fMonth.format(date).replace(".", "")),
-        el("span", "event-weekday", fWeekday.format(date))
-      );
-      timeEl.style.display = "contents";
-      dateBox.append(timeEl);
-      const body = el("div", "event-body");
-      const meta = el("p", "event-meta");
-      meta.append(el("span", null, time));
-      const cost = formatCost(e.cost);
-      if (cost) meta.append(el("span", null, cost));
-      const h = el("h3", "event-title");
-      const a = el("a", null, e.title);
+      const li = el("li", "gig");
+      const a = el("a", "gig-link");
       a.href = e.url; a.target = "_blank"; a.rel = "noopener";
-      h.append(a);
-      body.append(meta, h);
-      if (e.desc) body.append(el("p", "event-desc", e.desc));
-      body.append(el("span", "event-more", T.details));
-      li.append(dateBox, body);
+      const when = el("time", "gig-date");
+      when.dateTime = `${day}T${time}`;
+      when.append(
+        el("span", "gig-day", String(date.getDate())),
+        el("span", "gig-month", fMonth.format(date).replace(".", "")),
+        el("span", "gig-weekday", fWeekday.format(date))
+      );
+      const main = el("span", "gig-main");
+      if (day === today) main.append(el("span", "gig-tag", T.today));
+      main.append(el("strong", "gig-title", e.title));
+      if (e.desc) main.append(el("span", "gig-desc", e.desc));
+      const meta = el("span", "gig-meta");
+      meta.append(el("span", "gig-time", time));
+      const cost = formatCost(e.cost);
+      if (cost) meta.append(el("span", "gig-price", cost));
+      a.append(when, main, meta);
+      li.append(a);
       eventsList.append(li);
     });
 
@@ -364,7 +327,7 @@
     const bill = $("#tonight");
     $(".tonight-label", bill).textContent = isToday ? T.tonight : T.next;
     $(".tonight-name", bill).textContent = first.title;
-    $(".tonight-time", bill).textContent = `${(isToday ? fWeekday : fDay).format(date)} · ${time}`;
+    $(".tonight-time", bill).textContent = `${(isToday ? fWeekday : fDay).format(date)}, ${time}`;
     bill.classList.remove("is-pending");
     bill.removeAttribute("aria-hidden");
     bill.removeAttribute("tabindex");
@@ -602,7 +565,7 @@
         return;
       }
       const d = Object.fromEntries(new FormData(form));
-      const values = [d.name, d.email, d.phone, d.people, d.date, d.time, d.notes || "–"];
+      const values = [d.name, d.email, d.phone, d.people, d.date, d.time, d.notes || T.none];
       const body = T.mailLines.map((l, i) => `${l}: ${values[i]}`).join("\n");
       const subject = `${T.mailSubject} – ${d.date} ${d.time}, ${d.people} ${T.people}`;
       submit.disabled = true;
