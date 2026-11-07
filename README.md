@@ -22,7 +22,7 @@ python -m http.server 5510
 | `404.html` | strona błędu (`noindex`, ścieżki od katalogu głównego) |
 | `robots.txt`, `sitemap.xml` | indeksowanie; sitemapa ma obie wersje językowe i zdjęcia |
 | `assets/css/style.css` | wygląd i wersja mobilna; na górze pliku kierunek projektu (paleta, pismo, motyw, ruch) z uzasadnieniem każdej decyzji |
-| `assets/js/main.js` | wspólny dla PL i EN (język z `<html lang>`): program koncertów, gramofon (kręci się na ekranie, przycisk pauzy), galeria, podgląd, menu, formularz, mapa po kliknięciu |
+| `assets/js/main.js` | wspólny dla PL i EN (język z `<html lang>`): program koncertów, gramofon (kręci się na ekranie, przycisk pauzy), galeria, podgląd, menu, formularz |
 | `assets/fonts/` | czcionki lokalnie (woff2, latin + latin-ext): Fira Sans, Fira Sans Condensed 800, Cormorant Garamond italic |
 | `assets/img/` | zdjęcia WebP w dwóch rozmiarach (`galeria/`), strony kart (`menu/`), partnerzy, obrazek do udostępniania (1200×630) |
 | `assets/icons/`, `favicon.ico` | ikony 48 / 192 / 180 px |

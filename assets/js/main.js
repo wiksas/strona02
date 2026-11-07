@@ -583,22 +583,6 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* mapa Google dopiero po kliknięciu                                   */
-  /* ------------------------------------------------------------------ */
-  const map = $("#map");
-  $("#mapLoad")?.addEventListener("click", () => {
-    const f = el("iframe");
-    f.title = map.dataset.title;
-    f.src = map.dataset.src;
-    f.referrerPolicy = "no-referrer-when-downgrade";
-    f.allowFullscreen = true;
-    $(".map-facade", map).remove();
-    map.append(f);
-    map.classList.add("is-loaded");
-    f.focus();
-  });
-
-  /* ------------------------------------------------------------------ */
   /* stały pasek „Zadzwoń / Rezerwuj” — chowa się przy hero i kontakcie  */
   /* ------------------------------------------------------------------ */
   const callbar = $("#callbar");
